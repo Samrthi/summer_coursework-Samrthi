@@ -2,38 +2,33 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const CandidateSchema = new Schema({
+    name: { type: String, required: true },
     statement: String,
-    skills: [{id: String}],
-    searchable: Boolean,
-    interested_jobs: [{id: String}],
+    skills: [{id: Schema.Types.ObjectId}],
+    searchable: Boolean, // should default to false
+    interested_jobs: [{id: Schema.Types.ObjectId}],
 })
-const CandidateModel = mongoose.model('Candidate', CandidateSchema);
-
 
 const EmployerSchema = new Schema({
-    jobs: [{id: String}]
+    name: { type: String, required: true },
+    jobs: [{id: Schema.Types.ObjectId}]
 })
-const EmployerModel = mongoose.model('Employer', EmployerSchema);
 
 
 const JobSchema = new Schema({
+    name: { type: String, required: true },
     skills: [{id: String}],
-    shortlist: [{id: String}]
+    shortlist: [{id: Schema.Types.ObjectId}]
 })
-const JobModel = mongoose.model('Job', JobSchema);
 
 
 const SkillSchema = new Schema({
-    name: String
+    name: { type: String, required: true }
 })
-const SkillModel = mongoose.model('Skill', SkillSchema);
-
-
-
 
 module.exports = {
-    CandidateModel: CandidateModel,
-    EmployerModel: EmployerModel,
-    JobModel: JobModel,
-    SkillModel: SkillModel
+    CandidateModel: mongoose.model('Candidate', CandidateSchema),
+    EmployerModel: mongoose.model('Employer', EmployerSchema),
+    JobModel: mongoose.model('Job', JobSchema),
+    SkillModel: mongoose.model('Skill', SkillSchema)
 }

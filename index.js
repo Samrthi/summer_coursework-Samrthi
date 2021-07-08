@@ -7,6 +7,7 @@ const app = express()
 const API = require('./server/routes/API')
 
 
+
 const credentials = fs.readFileSync('X509-cert-6199649518536865681.pem');
 
 mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority',
