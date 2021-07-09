@@ -12,6 +12,8 @@ import { SignupComponent } from './signup/signup.component';
 import { AppRoutingModule } from './app-routing.module';
 import {StorageService} from "./storage.service";
 import {MaterialModule} from "./material/material.module";
+import {AuthService} from "./auth.service";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -27,10 +29,12 @@ import {MaterialModule} from "./material/material.module";
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MaterialModule
+    MaterialModule,
+    HttpClientModule,
   ],
   providers: [
     StorageService,
+    AuthService,
     // {
     //   provide: HTTP_INTERCEPTORS,
     //   useClass: AuthInterceptor,

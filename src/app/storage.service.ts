@@ -3,17 +3,14 @@ import { Candidate } from "./candidate";
 import { Employer} from "./employer";
 import { Job } from "./job";
 import { Skill } from "./skill";
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class StorageService {
   constructor(private http: HttpClient) {}
 
   // GET
-
   getCandidate(candidateId: string): Observable<Candidate> {
     return this.http.get<Candidate>('/api/candidate/' + candidateId)
   }

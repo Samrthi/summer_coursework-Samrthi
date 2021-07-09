@@ -8,3 +8,19 @@
 
 <!--filter by skill -> add as those bubble things-->
 <!--is shortlisted/interested in job xyz-->
+
+
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            Candidates
+        </mat-card-title>
+    </mat-card-header>
+
+    <mat-nav-list>
+        <li *ngFor="let candidate of candidates">
+            {{ candidate.name }}
+        </li>
+    </mat-nav-list>
+
+</mat-card>
