@@ -17,6 +17,7 @@ const EmployerSchema = new Schema({
 
 const JobSchema = new Schema({
     name: { type: String, required: true },
+    description: String,
     skills: [{id: String}],
     shortlist: [{id: Schema.Types.ObjectId}]
 })
