@@ -7,12 +7,10 @@ import { EmployerProfileComponent } from './employer-profile/employer-profile.co
 import { JobListingComponent } from './job-listing/job-listing.component';
 import { LoginComponent } from './login/login.component';
 import { CandidateListingComponent } from './candidate-listing/candidate-listing.component';
-import { JobEditorComponent } from './job-editor/job-editor.component';
 import { CandidateListComponent } from './candidate-list/candidate-list.component';
-import { JobListComponent } from './job-list/job-list.component';
 import { SignupComponent } from './signup/signup.component';
-import { JobComponent } from './job/job.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AppRoutingModule } from './app-routing.module';
+
 
 @NgModule({
   declarations: [
@@ -22,15 +20,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     JobListingComponent,
     LoginComponent,
     CandidateListingComponent,
-    JobEditorComponent,
     CandidateListComponent,
-    JobListComponent,
     SignupComponent,
-    JobComponent
   ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule
+    AppRoutingModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
