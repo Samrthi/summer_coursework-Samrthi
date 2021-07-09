@@ -10,7 +10,8 @@ import { CandidateListingComponent } from './candidate-listing/candidate-listing
 import { CandidateListComponent } from './candidate-list/candidate-list.component';
 import { SignupComponent } from './signup/signup.component';
 import { AppRoutingModule } from './app-routing.module';
-
+import {StorageService} from "./storage.service";
+import {MaterialModule} from "./material/material.module";
 
 @NgModule({
   declarations: [
@@ -26,8 +27,16 @@ import { AppRoutingModule } from './app-routing.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    MaterialModule
   ],
-  providers: [],
+  providers: [
+    StorageService,
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: AuthInterceptor,
+    //   multi: true,
+    // }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
