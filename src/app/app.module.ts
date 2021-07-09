@@ -12,6 +12,7 @@ import { CandidateListComponent } from './candidate-list/candidate-list.componen
 import { JobListComponent } from './job-list/job-list.component';
 import { SignupComponent } from './signup/signup.component';
 import { JobComponent } from './job/job.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { JobComponent } from './job/job.component';
     JobComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
