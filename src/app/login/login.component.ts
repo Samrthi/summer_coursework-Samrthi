@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../auth.service";
+import {Router} from "@angular/router";
 
 
 @Component({
@@ -20,7 +21,10 @@ export class LoginComponent {
     ])
   });
 
-  constructor(private auth: AuthService) {}
+  constructor(
+      private auth: AuthService,
+      private router: Router
+  ) {}
 
   get email(): string | null {
     if (this.loginForm.get('email')) {
@@ -40,6 +44,20 @@ export class LoginComponent {
     if (this.email && this.password) {
       this.auth.login(this.email, this.password).subscribe(res => {
         console.log(res)
+        // @ts-ignore
+        if (res.match) {
+          // @ts-ignore
+          if (res.has_profile) {
+            // @ts-ignore
+            if (res.profile.profile_type == "candidate") {
+              this.router.navigate(['/candidate-profile'])
+            } else {
+              this.router.navigate(['/choose-profile'])
+            }
+          } else {
+            this.router.navigate(['/choose-profile'])
+          }
+        }
       })
       // navigate forward when successful
       // show wrong password message otherwise/no user (retrieves as "error")

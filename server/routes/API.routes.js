@@ -24,15 +24,67 @@ function http_error(res, code, message){
 router.post('/add-user', jsonParser, function (req, res){
     const user_instance = new User.UserModel(req.body)
     user_instance.save(function (err) {
-        console.log(err)
         if (err) return http_error(res, 500, err.message);
         res.status(201).send()
     });
 })
 
-// remove user
-// add profile
-// remove profile
+router.put('/add-profile', jsonParser, function(req, res) {
+    let user_id = jwt.decode(req.cookies['t']).user_id
+    let profile_id = req.body.id
+    let profile_type = req.body.profile_type
+
+    User.UserModel.findByIdAndUpdate(user_id, {profile: req.body}, function (err) {
+        if (err) return http_error(res, 500, err.message);
+
+        let token_payload = {
+            user_id: user_id,
+            profile_id: profile_id,
+            profile_type: profile_type
+        }
+
+        // create a token
+        const token = jwt.sign(
+            token_payload,
+            config.jwtSecret,
+            {
+                expiresIn: "1800s" // 30 minutes
+            });
+
+        res.cookie('t', token, {
+            sameSite: "strict",
+            secure: true,
+            httpOnly: true,
+            overwrite: true,
+        })
+
+        res.status(200).send()
+    })
+})
+
+router.delete('/delete-user', function (req, res) {
+    let id = jwt.decode(req.cookies['t']).user_id
+    User.UserModel.findByIdAndDelete(id, function(err) {
+        if (err) return http_error(res, 500, err.message);
+        res.status(200).send()
+    })
+})
+
+router.delete('/delete-candidate-profile/:profile_id', function (req, res) {
+    let id = req.params['profile_id']
+    Database.CandidateModel.findByIdAndDelete(id, function(err) {
+        if (err) return http_error(res, 500, err.message);
+        res.status(200).send()
+    })
+})
+
+router.delete('/delete-employer-profile/:profile_id', function (req, res) {
+    let id = req.params['profile_id']
+    Database.EmployerModel.findByIdAndDelete(id, function(err) {
+        if (err) return http_error(res, 500, err.message);
+        res.status(200).send()
+    })
+})
 
 router.get('/logout', function (req, res){
     res.clearCookie('t').send()
@@ -47,11 +99,18 @@ router.post('/login', jsonParser, function (req, res){
             return http_error(res,401, "Password incorrect")
         }
 
+        let token_payload = {
+            user_id: user.id
+        }
+
+        if (user.profile) {
+            token_payload.profile_id = user.profile.id
+            token_payload.profile_type = user.profile.type
+        }
+
         // create a token
-        const token = jwt.sign({
-                _id: user.profile.id,
-                profile_type: user.profile.type
-            },
+        const token = jwt.sign(
+            token_payload,
             config.jwtSecret,
             {
                 expiresIn: "1800s" // 30 minutes
@@ -64,7 +123,12 @@ router.post('/login', jsonParser, function (req, res){
             httpOnly: true,
         })
 
-        return res.json()
+        return res.status(200)
+            .json({
+                match: true,
+                has_profile: user.hasOwnProperty("profile"),
+                profile: user.profile
+            })
     })
 })
 
@@ -165,7 +229,9 @@ router.post('/candidate', jsonParser, function (req, res) {
     const candidate_instance = new Database.CandidateModel(req.body);
     candidate_instance.save(function (err) {
         if (err) return http_error(res, 500, err.message);
-        res.status(201).send()
+        res.status(201).json({
+            profile_id: candidate_instance.id
+        })
     });
 })
 
@@ -173,7 +239,9 @@ router.post('/employer', jsonParser, function (req, res) {
     const employer_instance = new Database.EmployerModel(req.body);
     employer_instance.save(function (err) {
         if (err) return http_error(res, 500, err.message);
-        res.status(201).send()
+        res.status(201).json({
+            profile_id: employer_instance.id
+        })
     });
 })
 

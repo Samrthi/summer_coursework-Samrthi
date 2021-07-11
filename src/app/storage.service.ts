@@ -59,7 +59,7 @@ export class StorageService {
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    return this.http.post('/api/candidate', employer, options)
+    return this.http.post('/api/employer', employer, options)
   }
 
   addJob(job: Job): Observable<unknown> {

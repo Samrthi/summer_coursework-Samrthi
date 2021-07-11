@@ -15,10 +15,12 @@ export class AppComponent implements OnInit {
   constructor(
       private storage: StorageService,
       private auth: AuthService,
-      private cookieService: CookieService ) {}
+      private cookieService: CookieService
+  ){
+  }
 
   ngOnInit(): void {
-    if (this.cookieService.check('t')) {
+    if (this.cookieService.check('logged_in')) {
       this.logged_in = true
     }
   }
