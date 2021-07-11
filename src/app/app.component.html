@@ -2,3 +2,18 @@
 <!--profile/avatar button-->
 <!--logout button-->
 <!--logout links to loging page and logs user out-->
+
+
+
+<mat-sidenav-container class="sidenav-container">
+    <mat-sidenav-content>
+        <mat-toolbar color="primary">
+            <h1 class="mat-h1"><a>{{title}}</a></h1>
+            <div class="flex-spacer"></div>
+            <button id="logout-button" mat-raised-button *ngIf="logged_in" (click)="signOut()">Logout</button>
+        </mat-toolbar>
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+
+<!--routerlink!-->
