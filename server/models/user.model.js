@@ -1,5 +1,7 @@
+const crypto = require('crypto')
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+
 
 const UserSchema = new Schema({
     email: {
@@ -57,4 +59,4 @@ UserSchema.methods = {
     }
 }
 
-module.exports = {UserModel: mongoose.model('User', UserSchema)}
+module.exports = {UserModel: mongoose.model('User', UserSchema)} //format for consistency with database modesls

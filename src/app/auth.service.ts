@@ -10,7 +10,8 @@ export class AuthService {
 
   constructor(
       private http: HttpClient,
-      private router: Router) {}
+      private router: Router
+  ) {}
 
   login(email: string, password: string): Observable<unknown> {
     let credentials = {
@@ -26,5 +27,17 @@ export class AuthService {
   logout(): Observable<unknown> {
     this.router.navigate(['/login'])
     return this.http.get('/api/logout')
+  }
+
+  signup(email: string, password: string): Observable<unknown> {
+    let credentials = {
+      email: email,
+      password: password
+    }
+    const options = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    };
+    console.log("towards API")
+    return this.http.post('/api/add-user', credentials, options)
   }
 }

@@ -15,6 +15,7 @@ import {MaterialModule} from "./material/material.module";
 import {HttpClientModule} from "@angular/common/http";
 import { CookieService } from 'ngx-cookie-service';
 import {AuthService} from "./auth.service";
+import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import {AuthService} from "./auth.service";
     AppRoutingModule,
     MaterialModule,
     HttpClientModule,
+    ReactiveFormsModule
   ],
   providers: [
     StorageService,

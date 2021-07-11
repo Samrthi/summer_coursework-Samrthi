@@ -2,4 +2,25 @@
 
 <!--email-->
 <!--password-->
-<!--tickbox employer or candidate-->
+tickbox employer or candidate
+
+<div class="login-wrapper">
+    <mat-card class="box">
+        <mat-card-header>
+            <mat-card-title>Log in</mat-card-title>
+        </mat-card-header>
+
+        <form [formGroup]="signupForm">
+            <mat-card-content>
+                <mat-form-field>
+                    <input formControlName="email" matInput placeholder="Email">
+                </mat-form-field>
+
+                <mat-form-field>
+                    <input matInput formControlName="password" placeholder="Password">
+                </mat-form-field>
+            </mat-card-content>
+            <button mat-stroked-button (click)="signUp()">Sign up</button>
+        </form>
+    </mat-card>
+</div>

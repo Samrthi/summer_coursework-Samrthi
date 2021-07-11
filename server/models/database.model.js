@@ -5,7 +5,10 @@ const CandidateSchema = new Schema({
     name: { type: String, required: true },
     statement: String,
     skills: [{id: Schema.Types.ObjectId}],
-    searchable: Boolean, // should default to false
+    searchable: {
+        type: Boolean,
+        Default: false
+    },
     interested_jobs: [{id: Schema.Types.ObjectId}],
 })
 

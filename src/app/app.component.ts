@@ -26,6 +26,5 @@ export class AppComponent implements OnInit {
 
   signOut(): void {
     this.auth.logout()
-    // route to login page
   }
 }
