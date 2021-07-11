@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../enterprise_web_coursework/6 - Full MERN stack/Lab6workingSecure/.idea/Lab6workingSecure.iml" filepath="$PROJECT_DIR$/../enterprise_web_coursework/6 - Full MERN stack/Lab6workingSecure/.idea/Lab6workingSecure.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/summer_coursework-Samrthi.iml" filepath="$PROJECT_DIR$/.idea/summer_coursework-Samrthi.iml" />
     </modules>
   </component>
