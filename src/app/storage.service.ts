@@ -47,7 +47,6 @@ export class StorageService {
     return this.http.get<Skill[]>('/api/skill-list/')
   }
 
-
   // POST
   addCandidate(candidate: Candidate): Observable<unknown> {
       const options = {
@@ -69,9 +68,6 @@ export class StorageService {
     };
     return this.http.post('/api/candidate', job, options)
   }
-
-
-
 
   // PUT
   updateCandidate(candidate: Candidate): Observable<unknown> {
