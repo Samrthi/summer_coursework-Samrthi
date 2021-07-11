@@ -2,11 +2,10 @@ const express = require('express')
 const path = require('path')
 const mongoose = require('mongoose')
 const fs = require('fs');
+var cookieParser = require('cookie-parser')
 
 const app = express()
-const API = require('./server/routes/API')
-
-
+const API = require('./server/routes/API.routes')
 
 const credentials = fs.readFileSync('X509-cert-6199649518536865681.pem');
 
@@ -21,27 +20,20 @@ mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSourc
     if (err) {
         console.log(err)
     } else {
-        app.use(express.static(path.join(__dirname, 'dist')))
-
-        // middleware
-        app.use('/', function (req, res, next) {
-            // • Implement your logic here.
-            console.log('Time:', Date.now())
-            next()
-        })
+        // cookie decoder, saves some hassle
+        app.use(cookieParser())
 
         // API handler
-        app.use(`/api/`, API)
+        app.use('/api/', API)
 
-        // Return error on undeclared paths
+        // Return error on undeclared API paths
         app.get('/api/*', (req, res) => {
-            res.send({
-                message: 'Endpoint not found',
-                type: 'error'
-            })
+            res.status(404).send()
         })
 
 
+        // let angular handle rest of routes
+        app.use(express.static(path.join(__dirname, 'dist/app')))
         app.get('*', (req, res) => {
             console.log(req.url)
             res.sendFile(path.join(__dirname, 'dist/app/index.html'))
