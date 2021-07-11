@@ -12,8 +12,9 @@ import { SignupComponent } from './signup/signup.component';
 import { AppRoutingModule } from './app-routing.module';
 import {StorageService} from "./storage.service";
 import {MaterialModule} from "./material/material.module";
-import {AuthService} from "./auth.service";
 import {HttpClientModule} from "@angular/common/http";
+import { CookieService } from 'ngx-cookie-service';
+import {AuthService} from "./auth.service";
 
 @NgModule({
   declarations: [
@@ -35,11 +36,7 @@ import {HttpClientModule} from "@angular/common/http";
   providers: [
     StorageService,
     AuthService,
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: AuthInterceptor,
-    //   multi: true,
-    // }
+    CookieService
   ],
   bootstrap: [AppComponent]
 })
