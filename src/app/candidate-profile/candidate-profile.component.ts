@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {StorageService} from "../storage.service";
-import { Job } from "../job";
-import {catchError} from "rxjs/operators";
-import {of} from "rxjs";
+
+import {AuthService} from "../auth.service";
 
 @Component({
   selector: 'app-candidate-profile',
@@ -10,18 +9,16 @@ import {of} from "rxjs";
   styleUrls: ['./candidate-profile.component.scss']
 })
 export class CandidateProfileComponent implements OnInit {
-
+  name: string = ""
   constructor(
       private storage: StorageService,
-  ) { }
+      private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.loadData()
+    this.auth.getName().subscribe(res => {
+      // @ts-ignore
+      this.name = " " + res['name']
+    })
   }
-
-    private loadData(): void {
-
-    }
-
-
 }

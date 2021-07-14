@@ -8,18 +8,26 @@ import {JobListingComponent} from "./job-listing/job-listing.component";
 import {SignupComponent} from "./signup/signup.component";
 import {CreateProfileComponent} from "./create-profile/create-profile.component";
 import {EmployerProfileComponent} from "./employer-profile/employer-profile.component";
+import {AuthGuard} from "./auth.guard";
 
+
+// if everything goes as planned
+// the auth guard shouldn't be necessary
+// as users shouldn't end up on pages when they're logged in
+// but just in case, it's there
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'choose-profile', component: CreateProfileComponent},
-  { path: 'candidate-profile',component: CandidateProfileComponent },
-  { path: 'candidates',component: CandidateListComponent },
-  { path: 'candidate',component: CandidateListingComponent },
-  { path: 'employer-profile', component: EmployerProfileComponent },
-  { path: 'job-listing',component: JobListingComponent }
+  { path: 'choose-profile', component: CreateProfileComponent, canActivate: [AuthGuard]},
+  { path: 'candidate-profile',component: CandidateProfileComponent, canActivate: [AuthGuard] },
+  { path: 'candidates',component: CandidateListComponent, canActivate: [AuthGuard] },
+  { path: 'candidate',component: CandidateListingComponent, canActivate: [AuthGuard] },
+  { path: 'employer-profile', component: EmployerProfileComponent, canActivate: [AuthGuard] },
+  { path: 'job-listing',component: JobListingComponent, canActivate: [AuthGuard] },
+
+  { path: 'unauthenticated', redirectTo: '/login', pathMatch: 'full' },
 ];
 
 

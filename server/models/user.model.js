@@ -4,6 +4,10 @@ const Schema = mongoose.Schema
 
 
 const UserSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
     email: {
         type: String,
         required: true,
@@ -31,9 +35,9 @@ UserSchema.virtual('password')
     })
 
 UserSchema.path('hashed_password').validate(function() {
-    if (this._password && this._password.length < 8) {
-        this.invalidate('password', 'Password must be at least 8 characters.')
-    }
+    // if (this._password && this._password.length < 8) {
+    //     this.invalidate('password', 'Password must be at least 8 characters.')
+    // }
     if (this.isNew && !this._password) {
         this.invalidate('password', 'Password is required')
     }

@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const mongoose = require('mongoose')
 const fs = require('fs');
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser')
 
 const app = express()
 const API = require('./server/routes/API.routes')
@@ -22,6 +22,15 @@ mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSourc
     } else {
         // cookie decoder, saves some hassle
         app.use(cookieParser())
+
+        //app.use((err, req, res, next) => {
+        //   if (err.name === 'UnauthorizedError') {
+        //     res.status(401).json({"error" : err.name + ": " + err.message})
+        //   }else if (err) {
+        //     res.status(400).json({"error" : err.name + ": " + err.message})
+        //     console.log(err)
+        //   }
+        // })
 
         // API handler
         app.use('/api/', API)

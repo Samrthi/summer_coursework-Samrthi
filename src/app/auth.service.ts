@@ -5,18 +5,19 @@ import {Observable} from "rxjs";
 import {StorageService} from "./storage.service";
 import {Candidate} from "./candidate";
 import {Employer} from "./employer";
-import {CookieService} from "ngx-cookie-service";
 
 @Injectable()
 export class AuthService {
+  public loggedIn = false;
 
   constructor(
       private http: HttpClient,
       private router: Router,
       private storage: StorageService,
-      private cookieService: CookieService
+      public auth: AuthService
   ) {}
 
+  // @ts-ignore
   login(email: string, password: string): Observable<unknown> {
     let credentials = {
       email: email,
@@ -26,32 +27,60 @@ export class AuthService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
 
-    this.cookieService.set("logged_in", "true") // not security related, just for showing logout button
     return this.http.post('/api/login', credentials, options)
   }
 
+  // @ts-ignore
   logout(): Observable<unknown> {
-    this.cookieService.delete("logged_in")
+    this.loggedIn = false;
     this.router.navigate(['/login'])
-    return this.http.get('/api/logout')
+    this.http.get('/api/logout').subscribe(res => {
+        if (res == 200) {
+          this.auth.loggedIn = false
+        }
+    })
   }
 
-  signup(email: string, password: string): Observable<unknown> {
-    let credentials = {
+  signup(name: string, email: string, password: string): Observable<unknown> {
+    let account = {
+      name: name,
       email: email,
       password: password
     }
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    return this.http.post('/api/add-user', credentials, options)
+    return this.http.post('/api/add-user', account, options)
   }
 
   deleteUser(): Observable<unknown>{
     return this.http.delete('api/delete-user/')
   }
 
+  getName(): Observable<unknown> {
+    return this.http.get('api/get-name')
+  }
+
+
   addProfile(profile_type: string): Observable<unknown> {
+    // @ts-ignore
+    this.http.get('api/has-profile').subscribe(res => {
+      // @ts-ignore
+      let has_profile = res["has_profile"]
+
+      if (has_profile) {
+        // @ts-ignore
+        if (res['profile_type'] == "candidate") {
+          this.router.navigate(['/candidate-profile'])
+        } else { // @ts-ignore
+          if (res['profile_type'] == "employer") {
+            this.router.navigate(['/employer-profile'])
+          }
+        }
+        return new Observable<unknown>()
+      }
+    })
+
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
@@ -68,7 +97,6 @@ export class AuthService {
         profile.id = res.profile_id
         this.router.navigate(['/candidate-profile'])
         return this.http.put('/api/add-profile', profile, options).subscribe(res => {
-          console.log(res)
         })
       })
     } else if (profile_type == "employer") {
@@ -79,7 +107,6 @@ export class AuthService {
         profile.id = res.profile_id
         this.router.navigate(['/employer-profile'])
         return this.http.put('/api/add-profile', profile, options).subscribe(res => {
-          console.log(res)
         })
       })
     }

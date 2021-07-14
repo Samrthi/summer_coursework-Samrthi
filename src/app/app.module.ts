@@ -13,7 +13,6 @@ import { AppRoutingModule } from './app-routing.module';
 import {StorageService} from "./storage.service";
 import {MaterialModule} from "./material/material.module";
 import {HttpClientModule} from "@angular/common/http";
-import { CookieService } from 'ngx-cookie-service';
 import {AuthService} from "./auth.service";
 import {ReactiveFormsModule} from "@angular/forms";
 import { CreateProfileComponent } from './create-profile/create-profile.component';
@@ -40,7 +39,6 @@ import { CreateProfileComponent } from './create-profile/create-profile.componen
   providers: [
     StorageService,
     AuthService,
-    CookieService
   ],
   bootstrap: [AppComponent]
 })

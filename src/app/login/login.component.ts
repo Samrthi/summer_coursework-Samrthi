@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../auth.service";
 import {Router} from "@angular/router";
@@ -41,18 +41,28 @@ export class LoginComponent {
   }
 
   signIn() {
+    // this.auth.loggedIn().subscribe(res => {
+    //   // @ts-ignore
+    //   if(res["logged_in"]) {
+    //     console.log("already logged in")
+    //     //TODO navigate away
+    //   }
+    // })
+
     if (this.email && this.password) {
       this.auth.login(this.email, this.password).subscribe(res => {
         console.log(res)
+
         // @ts-ignore
         if (res.match) {
+          this.auth.loggedIn = true
           // @ts-ignore
-          if (res.has_profile) {
+          if (res.profile) {
             // @ts-ignore
             if (res.profile.profile_type == "candidate") {
               this.router.navigate(['/candidate-profile'])
             } else {
-              this.router.navigate(['/choose-profile'])
+              this.router.navigate(['/employer-profile'])
             }
           } else {
             this.router.navigate(['/choose-profile'])
