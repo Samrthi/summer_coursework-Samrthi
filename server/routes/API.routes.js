@@ -30,6 +30,7 @@ router.post('/add-user', jsonParser, function (req, res){
 })
 
 router.put('/add-profile', jsonParser, function(req, res) {
+    console.log("add profile got called")
     let user_id = jwt.decode(req.cookies['t']).user_id
     let profile_id = req.body.id
     let profile_type = req.body.profile_type
@@ -38,7 +39,6 @@ router.put('/add-profile', jsonParser, function(req, res) {
         if (err) return http_error(res, 500, err.message);
 
         let token_payload = {
-            user_id: user_id,
             profile_id: profile_id,
             profile_type: profile_type
         }
@@ -51,6 +51,8 @@ router.put('/add-profile', jsonParser, function(req, res) {
                 expiresIn: "1800s" // 30 minutes
             });
 
+
+        res.clearCookie('t')
         res.cookie('t', token, {
             sameSite: "strict",
             secure: true,
@@ -66,7 +68,7 @@ router.delete('/delete-user', function (req, res) {
     let id = jwt.decode(req.cookies['t']).user_id
     User.UserModel.findByIdAndDelete(id, function(err) {
         if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
+        res.status(200).send("Deletion successful")
     })
 })
 
@@ -86,12 +88,32 @@ router.delete('/delete-employer-profile/:profile_id', function (req, res) {
     })
 })
 
+router.get('/logged-in', function (req, res) {
+    let response = {"logged_in": false}
+    if (req.cookies['t']) {
+        response.logged_in = true
+    }
+    res.status(200).json(response)
+})
+
+router.get('/has-profile', function (req, res) {
+    let response = {"has_profile": false}
+    if (req.cookies['t'] && req.cookies['t']['profile']) {
+        response.has_profile = true
+        response.profile_type = req.cookies['t']['profile']['profile_type']
+    }
+    res.status(200).json(response)
+})
+
+router.get('/get-name', function (req, res) {
+    res.json({name: req.cookies['t'].name})
+})
+
 router.get('/logout', function (req, res){
-    res.clearCookie('t').send()
+    res.clearCookie('t').clearCookie('user').send()
 })
 
 router.post('/login', jsonParser, function (req, res){
-
     User.UserModel.findOne({email: req.body.email}, "", function (err, user) {
         if (err) return http_error(res, 500, err.message);
         if (!user) return http_error(res,401, "No user registered under this email address")
@@ -99,8 +121,10 @@ router.post('/login', jsonParser, function (req, res){
             return http_error(res,401, "Password incorrect")
         }
 
+
         let token_payload = {
-            user_id: user.id
+            user_id: user.id,
+            name: user.name
         }
 
         if (user.profile) {
@@ -120,13 +144,13 @@ router.post('/login', jsonParser, function (req, res){
             // expires: new Date() + 10,
             sameSite: "strict",
             secure: true,
-            httpOnly: true,
+            httpOnly: true
         })
+
 
         return res.status(200)
             .json({
                 match: true,
-                has_profile: user.hasOwnProperty("profile"),
                 profile: user.profile
             })
     })
