@@ -15,9 +15,7 @@ mongoose.set('useFindAndModify', false);
 // TODO return correct failure code and correct success code
 
 function http_error(res, code, message){
-    res.status(code).json({
-        error: message
-    })
+    res.status(code).send(message)
 }
 
 // AUTH ROUTES
@@ -35,10 +33,13 @@ router.put('/add-profile', jsonParser, function(req, res) {
     let profile_id = req.body.id
     let profile_type = req.body.profile_type
 
+    console.log(req.body)
+
     User.UserModel.findByIdAndUpdate(user_id, {profile: req.body}, function (err) {
         if (err) return http_error(res, 500, err.message);
 
         let token_payload = {
+            user_id: user_id,
             profile_id: profile_id,
             profile_type: profile_type
         }
@@ -51,13 +52,11 @@ router.put('/add-profile', jsonParser, function(req, res) {
                 expiresIn: "1800s" // 30 minutes
             });
 
-
         res.clearCookie('t')
         res.cookie('t', token, {
             sameSite: "strict",
             secure: true,
             httpOnly: true,
-            overwrite: true,
         })
 
         res.status(200).send()
@@ -124,7 +123,6 @@ router.post('/login', jsonParser, function (req, res){
 
         let token_payload = {
             user_id: user.id,
-            name: user.name
         }
 
         if (user.profile) {
@@ -160,11 +158,26 @@ router.post('/login', jsonParser, function (req, res){
 
 // GET METHODS
 router.get('/candidate/:candidate_id', function (req, res) {
-    const candidate_id = req.params['candidate_id']
+    let candidate_id = req.params['candidate_id']
+    if (candidate_id === "current") {
+        candidate_id = jwt.decode(req.cookies['t']).profile_id
+    }
     Database.CandidateModel.findById(candidate_id, function (err, candidate){
         if (err) return http_error(res, 500, "Something went wrong");
         if (!candidate) return http_error(res, 404, "No candidate with this id exists")
         res.json(candidate)
+    })
+})
+
+router.get('/employer/:employer_id', function (req, res) {
+    let employer_id = req.params['employer_id']
+    if (employer_id === "current") {
+        employer_id = jwt.decode(req.cookies['t']).profile_id
+    }
+    Database.EmployerModel.findById(employer_id, function (err, employer){
+        if (err) return http_error(res, 500, "Something went wrong");
+        if (!employer) return http_error(res, 404, "No employer with this id exists")
+        res.json(employer)
     })
 })
 
@@ -279,19 +292,19 @@ router.post('/job', jsonParser, function (req, res) {
 
 
 // PUT METHODS
-router.put('/candidate/:candidate_id', jsonParser, function (req, res) {
+router.put('/candidate', jsonParser, function (req, res) {
     // test command
     // curl -X PUT -H "Content-Type: application/json" -d '{"name":"Samantha", "searchable":"false"}' "http://localhost:3000/api/candidate/60e7784d95bd90f005d60a99"
 
-    const candidate_id = req.params['candidate_id']
+    const candidate_id = jwt.decode(req.cookies['t']).profile_id
     Database.CandidateModel.findByIdAndUpdate(candidate_id, req.body, function(err) {
         if (err) return http_error(res, 500, err.message);
         res.status(200).send()
     })
 })
 
-router.put('/employer/:employer_id', jsonParser, function (req, res) {
-    const employer_id = req.params['employer_id']
+router.put('/employer', jsonParser, function (req, res) {
+    const employer_id = jwt.decode(req.cookies['t']).profile_id
     Database.EmployerModel.findByIdAndUpdate(employer_id, req.body, function(err) {
         if (err) return http_error(res, 500, err.message);
         res.status(200).send()
@@ -309,22 +322,43 @@ router.put('/job/:job_id', jsonParser, function (req, res) {
 
 
 // DELETE METHODS
-router.delete('/candidate/:candidate_id', function (req, res) {
-    // testing command
-    // curl -X DELETE "http://localhost:3000/api/candidate/60e775648ce84bef921747b8"
+router.delete('/:type/', function (req, res) {
+    console.log(req.params["type"])
+    if (req.params["type"] === "employer") {
+        const employer_id = jwt.decode(req.cookies['t']).profile_id
+        Database.EmployerModel.findByIdAndDelete(employer_id, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    } else {
+        const candidate_id = jwt.decode(req.cookies['t']).profile_id
+        Database.CandidateModel.findByIdAndDelete(candidate_id, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    }
 
-    const candidate_id = req.params['candidate_id']
-    Database.CandidateModel.findByIdAndDelete(candidate_id, function (err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
-})
+    const user_id = jwt.decode(req.cookies['t']).user_id
+    User.UserModel.findByIdAndUpdate(user_id, {profile: null})
 
-router.delete('/employer/:employer_id', function (req, res) {
-    const employer_id = req.params['employer_id']
-    Database.EmployerModel.findByIdAndDelete(employer_id, function (err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
+
+    let token_payload = {
+        user_id: user_id,
+    }
+
+    // create a token
+    const token = jwt.sign(
+        token_payload,
+        config.jwtSecret,
+        {
+            expiresIn: "1800s" // 30 minutes
+        });
+
+    res.clearCookie('t')
+    res.cookie('t', token, {
+        sameSite: "strict",
+        secure: true,
+        httpOnly: true,
     })
 })
 
