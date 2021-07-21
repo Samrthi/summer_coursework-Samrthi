@@ -3,7 +3,6 @@ import {FormControl} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {StorageService} from "../storage.service";
 import {Candidate} from "../candidate";
-import {EditProfileDialogData} from "./candidate-profile.component";
 
 @Component({
     selector: 'edit-profile-dialog',
@@ -17,18 +16,20 @@ export class EditProfileDialogComponent implements OnInit {
     selected = ""
     skillDict = {};
     searchable: boolean;
+    allowDelete: boolean = true;
+    showDeleteConfirm: boolean = false;
 
     constructor(
         public dialogRef: MatDialogRef<EditProfileDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: EditProfileDialogData,
+        @Inject(MAT_DIALOG_DATA) public data: Candidate,
         private storage: StorageService,
     ) {}
 
     ngOnInit(): void {
-        this.searchable = this.data.profile.searchable
-        this.profileNameControl = new FormControl(this.data.profile.name);
-        this.statementControl = new FormControl(this.data.profile.statement);
-        this.userSkills = [...this.data.profile.skills]
+        this.searchable = this.data.searchable
+        this.profileNameControl = new FormControl(this.data.name);
+        this.statementControl = new FormControl(this.data.statement);
+        this.userSkills = [...this.data.skills]
         this.storage.getSkillList().subscribe(skills => {
             skills.forEach(skill => {
                 this.skillDict[skill._id] = skill.name
@@ -59,7 +60,6 @@ export class EditProfileDialogComponent implements OnInit {
 
 
     onOK(): void {
-        console.log(this.userSkills)
         let candidate = new Candidate(
             this.profileNameControl.value,
             this.statementControl.value,
@@ -75,13 +75,13 @@ export class EditProfileDialogComponent implements OnInit {
     }
 
     delete(): void {
-        this.data.allowDelete = false;
-        this.data.showDeleteConfirm = true;
+        this.allowDelete = false;
+        this.showDeleteConfirm = true;
     }
 
     cancelDelete(): void {
-        this.data.allowDelete = true;
-        this.data.showDeleteConfirm = false;
+        this.allowDelete = true;
+        this.showDeleteConfirm = false;
     }
 
     confirmDelete(): void {

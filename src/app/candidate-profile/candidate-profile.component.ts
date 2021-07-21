@@ -18,7 +18,6 @@ export class CandidateProfileComponent implements OnInit {
   constructor(
       private storage: StorageService,
       public dialog: MatDialog,
-      private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -38,12 +37,7 @@ export class CandidateProfileComponent implements OnInit {
   }
 
   editProfile() {
-    const dialogData: EditProfileDialogData = {
-      profile: this.candidate,
-      allowDelete: true,
-      showDeleteConfirm: false,
-    };
-    this.dialog.open(EditProfileDialogComponent, {data: dialogData})
+    this.dialog.open(EditProfileDialogComponent, {data: this.candidate})
     this.dialog.afterAllClosed.subscribe(res => {
       window.location.reload()
     })
@@ -56,11 +50,5 @@ export class CandidateProfileComponent implements OnInit {
   viewInterestedJobs() {
     //TODO implement
   }
-}
-
-export interface EditProfileDialogData {
-  profile: Candidate;
-  allowDelete: boolean;
-  showDeleteConfirm: boolean;
 }
 

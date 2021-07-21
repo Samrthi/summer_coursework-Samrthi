@@ -79,8 +79,9 @@ export class AuthService {
       profile_type: profile_type,
       id: null
     }
-    if (profile_type == "candidate") {
-      this.getName().subscribe(res => {
+
+    this.getName().subscribe(res => {
+      if (profile_type == "candidate") {
         this.storage.addCandidate(
             new Candidate(res["name"])
         ).subscribe(res => {
@@ -89,16 +90,18 @@ export class AuthService {
             this.router.navigate(['/candidate-profile'])
           })
         })
-      })
-    } else if (profile_type == "employer") {
-      this.storage.addEmployer(
-          new Employer("")
-      ).subscribe(res => {
-        profile.id = res["profile_id"]
-        this.http.put('/api/add-profile', profile, options).subscribe(res => {
-          this.router.navigate(['/employer-profile'])
+      } else if (profile_type == "employer") {
+        this.storage.addEmployer(
+            new Employer(res["name"])
+        ).subscribe(res => {
+          profile.id = res["profile_id"]
+          this.http.put('/api/add-profile', profile, options).subscribe(res => {
+            this.router.navigate(['/employer-profile'])
+          })
         })
-      })
-    }
+      }
+    })
   }
 }
+
+
