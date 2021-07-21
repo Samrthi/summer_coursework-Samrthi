@@ -1,18 +1,21 @@
-<mat-card class="box">
-    <mat-card-header>
-        <mat-card-title>Hello{{name}}!</mat-card-title>
-    </mat-card-header>
-</mat-card>
+<div *ngIf="isLoaded()">
+    <mat-card class="box">
+        <mat-card-header>
+            <mat-card-title>Hello {{candidate.name}}!</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            Statement: {{candidate.statement}}
+            Skills
+            <ul>
+                <li *ngFor="let skill of candidate.skills">{{skillDict[skill]}}</li>
+            </ul>
+            Searchable: {{candidate.searchable}}
 
-<!--name-->
-<!--summary-->
-<!--skills-->
+        </mat-card-content>
+        <button mat-button (click)="editProfile()" color="primary">Edit Profile</button>
 
-<!--view interested jobs-->
-<!--browse/search jobs-->
+        <button mat-button (click)="viewJobs()" color="primary">View all jobs</button>
+        <button mat-button (click)="viewInterestedJobs()" color="primary">View interested jobs</button>
+    </mat-card>
+</div>
 
-<!--edit profile-->
-<!--set searchable-->
-<!--add/remove skills-->
-
-<!--base edit profile off peoplemath -> no additional page-->
