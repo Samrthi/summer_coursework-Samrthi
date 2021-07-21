@@ -5,7 +5,6 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class NotificationService {
-  public notification$: Subject<string> = new Subject<string>();
   public error$: Subject<string> = new Subject<string>();
 
   constructor() {}
