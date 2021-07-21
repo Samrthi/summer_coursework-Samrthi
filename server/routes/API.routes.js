@@ -15,7 +15,7 @@ mongoose.set('useFindAndModify', false);
 // TODO return correct failure code and correct success code
 
 function http_error(res, code, message){
-    res.status(code).send(message)
+    res.status(code).send(message.toString())
 }
 
 // AUTH ROUTES
@@ -28,18 +28,17 @@ router.post('/add-user', jsonParser, function (req, res){
 })
 
 router.put('/add-profile', jsonParser, function(req, res) {
-    console.log("add profile got called")
     let user_id = jwt.decode(req.cookies['t']).user_id
+    let name = jwt.decode(req.cookies['t']).name
     let profile_id = req.body.id
     let profile_type = req.body.profile_type
-
-    console.log(req.body)
 
     User.UserModel.findByIdAndUpdate(user_id, {profile: req.body}, function (err) {
         if (err) return http_error(res, 500, err.message);
 
         let token_payload = {
             user_id: user_id,
+            name: name,
             profile_id: profile_id,
             profile_type: profile_type
         }
@@ -63,29 +62,8 @@ router.put('/add-profile', jsonParser, function(req, res) {
     })
 })
 
-router.delete('/delete-user', function (req, res) {
-    let id = jwt.decode(req.cookies['t']).user_id
-    User.UserModel.findByIdAndDelete(id, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send("Deletion successful")
-    })
-})
 
-router.delete('/delete-candidate-profile/:profile_id', function (req, res) {
-    let id = req.params['profile_id']
-    Database.CandidateModel.findByIdAndDelete(id, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
-})
 
-router.delete('/delete-employer-profile/:profile_id', function (req, res) {
-    let id = req.params['profile_id']
-    Database.EmployerModel.findByIdAndDelete(id, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
-})
 
 router.get('/logged-in', function (req, res) {
     let response = {"logged_in": false}
@@ -97,15 +75,15 @@ router.get('/logged-in', function (req, res) {
 
 router.get('/has-profile', function (req, res) {
     let response = {"has_profile": false}
-    if (req.cookies['t'] && req.cookies['t']['profile']) {
+    if (req.cookies['t'] && jwt.decode(req.cookies['t']).profile) {
         response.has_profile = true
-        response.profile_type = req.cookies['t']['profile']['profile_type']
+        response.profile_type = jwt.decode(req.cookies['t']).profile_type
     }
     res.status(200).json(response)
 })
 
 router.get('/get-name', function (req, res) {
-    res.json({name: req.cookies['t'].name})
+    res.json({name: jwt.decode(req.cookies['t']).name})
 })
 
 router.get('/logout', function (req, res){
@@ -123,6 +101,7 @@ router.post('/login', jsonParser, function (req, res){
 
         let token_payload = {
             user_id: user.id,
+            name: user.name,
         }
 
         if (user.profile) {
@@ -163,7 +142,7 @@ router.get('/candidate/:candidate_id', function (req, res) {
         candidate_id = jwt.decode(req.cookies['t']).profile_id
     }
     Database.CandidateModel.findById(candidate_id, function (err, candidate){
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         if (!candidate) return http_error(res, 404, "No candidate with this id exists")
         res.json(candidate)
     })
@@ -175,7 +154,7 @@ router.get('/employer/:employer_id', function (req, res) {
         employer_id = jwt.decode(req.cookies['t']).profile_id
     }
     Database.EmployerModel.findById(employer_id, function (err, employer){
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         if (!employer) return http_error(res, 404, "No employer with this id exists")
         res.json(employer)
     })
@@ -183,23 +162,23 @@ router.get('/employer/:employer_id', function (req, res) {
 
 router.get('/job/:job_id', function (req, res) {
     const job_id = req.params['job_id']
-    Database.Models.JobModelModel.findById(job_id, function (err, job){
-        if (err) return http_error(res, 500, "Something went wrong");
+    Database.JobModel.findById(job_id, function (err, job){
+        if (err) return http_error(res, 500, err.message);
         res.json(job)
     })
 })
 
 router.get('/skill/:skill_id', function (req, res) {
     const skill_id = req.params['skill_id']
-    Database.Models.SkillModelModel.findById(skill_id, function (err, skill){
-        if (err) return http_error(res, 500, "Something went wrong");
+    Database.SkillModel.findById(skill_id, function (err, skill){
+        if (err) return http_error(res, 500, err.message);
         res.json(skill)
     })
 })
 
 router.get('/searchable_candidates', function (req, res) {
     Database.CandidateModel.find({searchable: true}, function (err, candidates) {
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         res.json(candidates)
     })
 })
@@ -207,13 +186,13 @@ router.get('/searchable_candidates', function (req, res) {
 router.get('/shortlist/:job_id', function (req, res) {
     const job_id = req.params['job_id']
     Database.JobModel.findById(job_id, 'shortlist', function (err, job){
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         if (!job) return http_error(res, 404, "No job with this id exists")
 
         const shortlist = job.shortlist.map(x => x['id'])
 
-        Candidate.find({_id: {"$in": shortlist}},function (err, candidates) {
-            if (err) return http_error(res, 500, "Something went wrong");
+        Database.CandidateModel.find({_id: {"$in": shortlist}},function (err, candidates) {
+            if (err) return http_error(res, 500, err.message);
             res.json(candidates)
         })
     })
@@ -222,13 +201,13 @@ router.get('/shortlist/:job_id', function (req, res) {
 router.get('/interested_jobs/:candidate_id', function (req, res) {
     const candidate_id = req.params['candidate_id']
     Database.CandidateModel.findById(candidate_id, 'interested_jobs', function (err, candidate){
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         if (!candidate) return http_error(res, 404, "No candidate with this id exists")
 
         const job_list = candidate.interested_jobs.map(x => x['id'])
 
         Database.JobModel.find({_id: {"$in": job_list}},function (err, jobs) {
-            if (err) return http_error(res, 500, "Something went wrong");
+            if (err) return http_error(res, 500, err.message);
             res.json(jobs)
         })
     })
@@ -237,7 +216,7 @@ router.get('/interested_jobs/:candidate_id', function (req, res) {
 router.get('/shortlisted_jobs/:candidate_id', function (req, res) {
     const candidate_id = req.params['candidate_id']
     Database.JobModel.find({"shortlist.id": candidate_id},function (err, jobs) {
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         res.json(jobs)
     })
 })
@@ -245,14 +224,14 @@ router.get('/shortlisted_jobs/:candidate_id', function (req, res) {
 
 router.get('/job-list', function (req, res) {
     Database.JobModel.find(function (err, jobs) {
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         res.json(jobs)
     })
 })
 
 router.get('/skill-list', function (req, res) {
     Database.SkillModel.find(function (err, skills) {
-        if (err) return http_error(res, 500, "Something went wrong");
+        if (err) return http_error(res, 500, err.message);
         res.json(skills)
     })
 })
@@ -262,7 +241,7 @@ router.post('/candidate', jsonParser, function (req, res) {
 
     // test command
     // curl -X POST -H "Content-Type: application/json" -d '{"name":"Sam"}' "http://localhost:3000/api/candidate"
-
+    
     const candidate_instance = new Database.CandidateModel(req.body);
     candidate_instance.save(function (err) {
         if (err) return http_error(res, 500, err.message);
@@ -296,6 +275,7 @@ router.put('/candidate', jsonParser, function (req, res) {
     // test command
     // curl -X PUT -H "Content-Type: application/json" -d '{"name":"Samantha", "searchable":"false"}' "http://localhost:3000/api/candidate/60e7784d95bd90f005d60a99"
 
+    
     const candidate_id = jwt.decode(req.cookies['t']).profile_id
     Database.CandidateModel.findByIdAndUpdate(candidate_id, req.body, function(err) {
         if (err) return http_error(res, 500, err.message);
@@ -309,7 +289,6 @@ router.put('/employer', jsonParser, function (req, res) {
         if (err) return http_error(res, 500, err.message);
         res.status(200).send()
     })
-    res.status(200).send()
 })
 
 router.put('/job/:job_id', jsonParser, function (req, res) {
@@ -322,8 +301,17 @@ router.put('/job/:job_id', jsonParser, function (req, res) {
 
 
 // DELETE METHODS
+
+router.delete('/delete-user', function (req, res) {
+    let id = jwt.decode(req.cookies['t']).user_id
+    User.UserModel.findByIdAndDelete(id, function(err) {
+        if (err) return http_error(res, 500, err.message);
+        res.clearCookie('t')
+        res.status(200).send()
+    })
+})
+
 router.delete('/:type/', function (req, res) {
-    console.log(req.params["type"])
     if (req.params["type"] === "employer") {
         const employer_id = jwt.decode(req.cookies['t']).profile_id
         Database.EmployerModel.findByIdAndDelete(employer_id, function (err) {
@@ -339,11 +327,16 @@ router.delete('/:type/', function (req, res) {
     }
 
     const user_id = jwt.decode(req.cookies['t']).user_id
-    User.UserModel.findByIdAndUpdate(user_id, {profile: null})
+    let name = jwt.decode(req.cookies['t']).name
+    User.UserModel.findByIdAndUpdate(user_id, {$unset: {profile: ""}}, function (err) {
+        if (err) return http_error(res, 500, err.message);
+        res.status(200).send()
+    })
 
 
     let token_payload = {
         user_id: user_id,
+        name: name,
     }
 
     // create a token

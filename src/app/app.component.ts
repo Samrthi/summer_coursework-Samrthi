@@ -18,12 +18,15 @@ export class AppComponent {
       private snackBar: MatSnackBar,
       private dialog: MatDialog
   ) {
-    this.notificationService.notification$.subscribe((message) => {
-      this.snackBar.open(message, '', { duration: 2000 });
-    });
     this.notificationService.error$.subscribe((message) => {
-      this.dialog.open(PopupComponent, { data: message });
+      this.snackBar.open(message, '', { duration: 5000 });
     });
+
+    // Alternative implementation:
+
+    // this.notificationService.error$.subscribe((message) => {
+    //   this.dialog.open(PopupComponent, { data: message });
+    // });
   }
 
   signOut(): void {
