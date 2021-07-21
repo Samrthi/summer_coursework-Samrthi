@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../auth.service";
 import {Router} from "@angular/router";
+import {NotificationService} from "../notification.service";
 
 
 @Component({
@@ -23,7 +24,8 @@ export class LoginComponent {
 
   constructor(
       private auth: AuthService,
-      private router: Router
+      private router: Router,
+      private notificationService: NotificationService
   ) {}
 
   get email(): string | null {
@@ -41,39 +43,24 @@ export class LoginComponent {
   }
 
   signIn() {
-    // this.auth.loggedIn().subscribe(res => {
-    //   // @ts-ignore
-    //   if(res["logged_in"]) {
-    //     console.log("already logged in")
-    //     //TODO navigate away
-    //   }
-    // })
+    this.auth.loggedIn().subscribe(res => {
+      if(res["logged_in"]) {
+        this.notificationService.error$.next("You are already logged in, please log out before attempting to log in with a different account")
+      }
+    })
 
     if (this.email && this.password) {
       this.auth.login(this.email, this.password).subscribe(res => {
-        console.log(res)
-
-        // @ts-ignore
-        if (res.match) {
-          this.auth.loggedIn = true
-          // @ts-ignore
-          if (res.profile) {
-            // @ts-ignore
-            if (res.profile.profile_type == "candidate") {
-              this.router.navigate(['/candidate-profile'])
-            } else {
-              this.router.navigate(['/employer-profile'])
-            }
+        if (res["match"]) {
+          if (res["profile"].profile_type == "candidate") {
+            this.router.navigate(['/candidate-profile'])
+          } else if (res["profile"].profile_type == "employer") {
+            this.router.navigate(['/employer-profile'])
           } else {
             this.router.navigate(['/choose-profile'])
           }
         }
       })
-      // navigate forward when successful
-      // show wrong password message otherwise/no user (retrieves as "error")
-
-    } else {
-      // notify user of error
     }
   }
 }

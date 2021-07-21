@@ -5,6 +5,8 @@ import { Job } from "./job";
 import { Skill } from "./skill";
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import * as mongoose from "mongoose";
+import {map} from "rxjs/operators";
 
 @Injectable()
 export class StorageService {
@@ -13,6 +15,11 @@ export class StorageService {
   // GET
   getCandidate(candidateId: string): Observable<Candidate> {
     return this.http.get<Candidate>('/api/candidate/' + candidateId)
+        .pipe(map(candidate => formatSkillsForFrontend(candidate)))
+  }
+
+  getEmployer(jobId: string): Observable<Employer> {
+    return this.http.get<Employer>('/api/employer/' + jobId)
   }
 
   getJob(jobId: string): Observable<Job> {
@@ -25,10 +32,12 @@ export class StorageService {
 
   getSearchableCandidates(): Observable<Candidate[]> {
     return this.http.get<Candidate[]>('/api/searchable_candidates/')
+        .pipe(map(candidates => candidates.map(candidate => formatSkillsForFrontend(candidate))))
   }
 
   getShortlistCandidates(jobId: string): Observable<Candidate[]> {
     return this.http.get<Candidate[]>('/api/shortlist/' + jobId)
+        .pipe(map(candidates => candidates.map(candidate => formatSkillsForFrontend(candidate))))
   }
 
   getInterestedJobs (candidateId: string): Observable<Job[]> {
@@ -44,7 +53,7 @@ export class StorageService {
   }
 
   getSkillList (): Observable<Skill[]> {
-    return this.http.get<Skill[]>('/api/skill-list/')
+    return this.http.get<Skill[]>('/api/skill-list')
   }
 
   // POST
@@ -52,7 +61,7 @@ export class StorageService {
       const options = {
         headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
       };
-      return this.http.post('/api/candidate', candidate, options)
+      return this.http.post('/api/candidate', formatSkillsForBackend(candidate), options)
   }
 
   addEmployer(employer: Employer): Observable<unknown> {
@@ -66,41 +75,55 @@ export class StorageService {
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    return this.http.post('/api/candidate', job, options)
+    return this.http.post('/api/job', job, options)
   }
 
   // PUT
-  updateCandidate(candidate: Candidate): Observable<unknown> {
+  updateCandidate(candidate: Candidate) {
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    return this.http.put('/api/candidate', candidate, options)
+    this.http.put('/api/candidate', formatSkillsForBackend(candidate), options).subscribe()
   }
 
-  updateEmployer(employer: Employer): Observable<unknown> {
+  updateEmployer(employer: Employer){
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    return this.http.put('/api/candidate', employer, options)
+    this.http.put('/api/employer', employer, options).subscribe()
   }
 
-  updateJob(job: Job): Observable<unknown> {
-    const options = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-    };
-    return this.http.put('/api/candidate', job, options)
-  }
+  // potentially not needed
+
+  // updateJob(job: Job): Observable<unknown> {
+  //   const options = {
+  //     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+  //   };
+  //   return this.http.put('/api/job', job, options)
+  // }
 
   // DELETE
-  deleteCandidate(candidateId: string): Observable<unknown> {
-    return this.http.delete('/api/candidate/' + candidateId)
+  deleteCandidate(){
+    this.http.delete('/api/candidate').subscribe()
   }
 
-  deleteEmployer(employerId: string): Observable<unknown> {
-    return this.http.delete('/api/employer/' + employerId)
+  deleteEmployer() {
+    this.http.delete('/api/employer').subscribe()
   }
 
-  deleteJob(jobId: string): Observable<unknown> {
-    return this.http.delete('/api/job/' + jobId)
+  deleteJob(jobId: string) {
+    this.http.delete('/api/job/' + jobId).subscribe()
   }
+}
+
+// Helpers
+function formatSkillsForBackend(candidate: Candidate) {
+  candidate.skills = candidate.skills
+      .map(id => JSON.parse('{"id": "' + mongoose.Types.ObjectId(id) + '"}'))
+  return candidate
+}
+
+function formatSkillsForFrontend(candidate) {
+  candidate.skills = candidate.skills.map(id => id["id"])
+  return candidate
 }

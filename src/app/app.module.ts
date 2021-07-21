@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { AppComponent } from './app.component';
+import {AppComponent, PopupComponent} from './app.component';
 import { CandidateProfileComponent } from './candidate-profile/candidate-profile.component';
 import { EmployerProfileComponent } from './employer-profile/employer-profile.component';
 import { JobListingComponent } from './job-listing/job-listing.component';
@@ -12,12 +12,17 @@ import { SignupComponent } from './signup/signup.component';
 import { AppRoutingModule } from './app-routing.module';
 import {StorageService} from "./storage.service";
 import {MaterialModule} from "./material/material.module";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AuthService} from "./auth.service";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { CreateProfileComponent } from './create-profile/create-profile.component';
+import {EditProfileDialogComponent} from "./candidate-profile/edit-profile-dialog.component";
+import {ErrorInterceptor} from "./error.interceptor";
 
 @NgModule({
+  entryComponents: [
+    EditProfileDialogComponent
+  ],
   declarations: [
     AppComponent,
     CandidateProfileComponent,
@@ -28,17 +33,25 @@ import { CreateProfileComponent } from './create-profile/create-profile.componen
     CandidateListComponent,
     SignupComponent,
     CreateProfileComponent,
+    EditProfileDialogComponent,
+    PopupComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     MaterialModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
   providers: [
     StorageService,
     AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent]
 })

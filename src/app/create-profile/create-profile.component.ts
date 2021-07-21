@@ -27,10 +27,7 @@ export class CreateProfileComponent implements OnInit {
 
   deleteAccount() {
     this.auth.deleteUser().subscribe(res => {
-      // @ts-ignore
-      if (res.status == 200) {
-        this.router.navigate(['signup'])
-      }
+      this.router.navigate(['signup'])
     })
   }
 }
