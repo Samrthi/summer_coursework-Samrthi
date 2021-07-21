@@ -40,7 +40,7 @@ mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSourc
         if (port == null || port == "") {
             port = 8000;
         }
-        app.listen(PORT, () => console.log(`Application started successfully on port: ${port}!`))
+        app.listen(port, () => console.log(`Application started successfully on port: ${port}!`))
 
     }
 })
