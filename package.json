@@ -2,11 +2,8 @@
   "name": "app",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "start": "node index.js"
   },
   "private": true,
   "dependencies": {
@@ -44,5 +41,8 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "typescript": "~4.3.2"
-  }
+  },
+  "engines": {
+  "node": "16.x"
+}
 }
