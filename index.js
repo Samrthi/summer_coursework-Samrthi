@@ -23,15 +23,6 @@ mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSourc
         // cookie decoder, saves some hassle
         app.use(cookieParser())
 
-        //app.use((err, req, res, next) => {
-        //   if (err.name === 'UnauthorizedError') {
-        //     res.status(401).json({"error" : err.name + ": " + err.message})
-        //   }else if (err) {
-        //     res.status(400).json({"error" : err.name + ": " + err.message})
-        //     console.log(err)
-        //   }
-        // })
-
         // API handler
         app.use('/api/', API)
 
@@ -48,8 +39,11 @@ mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSourc
             res.sendFile(path.join(__dirname, 'dist/app/index.html'))
         })
 
-        const PORT = 3000
-        app.listen(PORT, () => console.log(`Application started successfully on port: ${PORT}!`))
+        let port = process.env.PORT;
+        if (port == null || port == "") {
+            port = 8000;
+        }
+        app.listen(PORT, () => console.log(`Application started successfully on port: ${port}!`))
 
     }
 })
