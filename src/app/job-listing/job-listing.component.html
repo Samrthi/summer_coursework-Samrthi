@@ -1,15 +1,17 @@
-<p>job-listing works!</p>
 
+<mat-card class="box">
+    <mat-card-content>
+    {{job.name}}
+    {{job.description}}
+    {{job.skills}}
+    </mat-card-content>
+    <mat-card-actions>
+        <button *ngIf="employer" (click)="editJob()">Edit</button>
+    </mat-card-actions>
+</mat-card>
 
-<!--name-->
-<!--description-->
-<!--required skills-->
+<!--if candidate -> show interested button -->
 
-
-<!--candidate-->
-<!--star/add as interested job-->
-
-<!--employer-->
-<!--view all candidates-->
+<!--if employer -> show edit button-->
 <!--view shortlist-->
 <!--view interested candidates-->

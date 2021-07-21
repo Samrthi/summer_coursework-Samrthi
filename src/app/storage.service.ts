@@ -18,8 +18,8 @@ export class StorageService {
         .pipe(map(candidate => formatSkillsForFrontend(candidate)))
   }
 
-  getEmployer(jobId: string): Observable<Employer> {
-    return this.http.get<Employer>('/api/employer/' + jobId)
+  getEmployer(employerId: string): Observable<Employer> {
+    return this.http.get<Employer>('/api/employer/' + employerId)
   }
 
   getJob(jobId: string): Observable<Job> {
@@ -40,16 +40,24 @@ export class StorageService {
         .pipe(map(candidates => candidates.map(candidate => formatSkillsForFrontend(candidate))))
   }
 
-  getInterestedJobs (candidateId: string): Observable<Job[]> {
-    return this.http.get<Job[]>('/api/interested_jobs/' + candidateId)
+  getInterestedJobs (): Observable<Job[]> {
+    return this.http.get<Job[]>('/api/interested_jobs/')
+        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
   }
 
-  getsShortlistedJobs (candidateId: string): Observable<Job[]> {
-    return this.http.get<Job[]>('/api/shortlisted_jobs/' + candidateId)
+  getShortlistedJobs (): Observable<Job[]> {
+    return this.http.get<Job[]>('/api/shortlisted_jobs/')
+        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
+  }
+
+  getEmployerJobs(): Observable<Job[]> {
+    return this.http.get<Job[]>('/api/employer_jobs')
+        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
   }
 
   getJobList (): Observable<Job[]> {
     return this.http.get<Job[]>('/api/job-list/')
+        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
   }
 
   getSkillList (): Observable<Skill[]> {
@@ -71,36 +79,36 @@ export class StorageService {
     return this.http.post('/api/employer', employer, options)
   }
 
-  addJob(job: Job): Observable<unknown> {
+  addJob(job: Job) {
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    return this.http.post('/api/job', job, options)
+    this.http.post('/api/job', formatSkillsForBackend(job), options).subscribe()
   }
 
   // PUT
-  updateCandidate(candidate: Candidate) {
+  updateCandidate(update) {
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    this.http.put('/api/candidate', formatSkillsForBackend(candidate), options).subscribe()
+    this.http.put('/api/candidate', formatSkillsForBackend(update), options).subscribe()
   }
 
-  updateEmployer(employer: Employer){
+  updateEmployer(update){
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    this.http.put('/api/employer', employer, options).subscribe()
+    this.http.put('/api/employer', update, options).subscribe()
   }
 
-  // potentially not needed
 
-  // updateJob(job: Job): Observable<unknown> {
-  //   const options = {
-  //     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-  //   };
-  //   return this.http.put('/api/job', job, options)
-  // }
+  updateJob(job: Job, id: string) {
+    const options = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    };
+    console.log(job)
+    this.http.put('/api/job/' + id, formatSkillsForBackend(job), options).subscribe()
+  }
 
   // DELETE
   deleteCandidate(){
@@ -117,13 +125,13 @@ export class StorageService {
 }
 
 // Helpers
-function formatSkillsForBackend(candidate: Candidate) {
-  candidate.skills = candidate.skills
+function formatSkillsForBackend(instance) {
+  instance.skills = instance.skills
       .map(id => JSON.parse('{"id": "' + mongoose.Types.ObjectId(id) + '"}'))
-  return candidate
+  return instance
 }
 
-function formatSkillsForFrontend(candidate) {
-  candidate.skills = candidate.skills.map(id => id["id"])
-  return candidate
+function formatSkillsForFrontend(instance) {
+  instance.skills = instance.skills.map(id => id["id"])
+  return instance
 }

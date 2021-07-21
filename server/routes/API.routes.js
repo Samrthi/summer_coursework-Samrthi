@@ -217,6 +217,21 @@ router.get('/shortlisted_jobs', function (req, res) {
     })
 })
 
+router.get('/employer_jobs', function (req, res) {
+    employer_id = jwt.decode(req.cookies['t']).profile_id
+    Database.EmployerModel.findById(employer_id, function (err, employer){
+        if (err) return http_error(res, 500, err.message);
+        if (!employer) return http_error(res, 404, "No employer with this id exists")
+
+
+        ids = employer.jobs.map(x => x["_id"])
+        Database.JobModel.find({_id: {"$in": ids}}, function (err, jobs) {
+            if (err) return http_error(res, 500, err.message);
+            res.json(jobs)
+        })
+    })
+})
+
 
 router.get('/job-list', function (req, res) {
     Database.JobModel.find(function (err, jobs) {
@@ -264,6 +279,7 @@ router.post('/job', jsonParser, function (req, res) {
         if (err) return http_error(res, 500, err.message);
         Database.EmployerModel.findByIdAndUpdate(employer_id, {$push: {jobs: job_instance}}, function(err) {
             if (err) return http_error(res, 500, err.message);
+            res.status(201).send()
         })
 
     });
@@ -283,7 +299,6 @@ router.put('/candidate', jsonParser, function (req, res) {
 
 router.put('/employer', jsonParser, function (req, res) {
     const employer_id = jwt.decode(req.cookies['t']).profile_id
-    console.log(req.body)
     Database.EmployerModel.findByIdAndUpdate(employer_id, req.body, function(err) {
         if (err) return http_error(res, 500, err.message);
         res.status(200).send()
@@ -291,8 +306,8 @@ router.put('/employer', jsonParser, function (req, res) {
 })
 
 
-router.put('/job/:job_id', jsonParser, function (req, res) {
-    const job_id = req.params['job_id']
+router.put('/job/:id', jsonParser, function (req, res) {
+    const job_id = req.params["id"]
     Database.JobModel.findByIdAndUpdate(job_id, req.body, function(err) {
         if (err) return http_error(res, 500, err.message);
         res.status(200).send()

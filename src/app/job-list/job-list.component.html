@@ -1,0 +1,5 @@
+<div *ngIf="isLoaded()">
+    <div *ngFor="let job of jobs">
+        <app-job-listing [job]="job" [employer]="employer"></app-job-listing>
+    </div>
+</div>
