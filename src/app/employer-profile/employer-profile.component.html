@@ -3,3 +3,18 @@
 
 <!--view my job listings-->
 <!--add new jobs listing-->
+
+<div *ngIf="isLoaded()">
+    <mat-card class="box">
+        <mat-card-header>
+            <mat-card-title>Hello {{employer.name}}!</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <button mat-button (click)="addJob()" color="primary">Add a jobs</button>
+            <button mat-button (click)="viewJobs()" color="primary">View my jobs</button>
+            <button mat-button (click)="viewCandidates()" color="primary">View all candidates</button>
+        </mat-card-content>
+    </mat-card>
+</div>
+

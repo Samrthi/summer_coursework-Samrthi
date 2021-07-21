@@ -18,6 +18,9 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { CreateProfileComponent } from './create-profile/create-profile.component';
 import {EditProfileDialogComponent} from "./candidate-profile/edit-profile-dialog.component";
 import {ErrorInterceptor} from "./error.interceptor";
+import {NewJobDialogComponent} from "./employer-profile/new-job-dialog.component";
+import { JobListComponent } from './job-list/job-list.component';
+import { EditJobDialogComponent } from './job-listing/edit-job-dialog.component';
 
 @NgModule({
   entryComponents: [
@@ -34,7 +37,11 @@ import {ErrorInterceptor} from "./error.interceptor";
     SignupComponent,
     CreateProfileComponent,
     EditProfileDialogComponent,
-    PopupComponent
+    PopupComponent,
+    NewJobDialogComponent,
+    JobListComponent,
+    EditJobDialogComponent
+
   ],
   imports: [
     BrowserModule,

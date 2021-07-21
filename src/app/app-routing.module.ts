@@ -9,6 +9,7 @@ import {SignupComponent} from "./signup/signup.component";
 import {CreateProfileComponent} from "./create-profile/create-profile.component";
 import {EmployerProfileComponent} from "./employer-profile/employer-profile.component";
 import {AuthGuard} from "./auth.guard";
+import { JobListComponent } from './job-list/job-list.component';
 
 
 // if everything goes as planned
@@ -22,10 +23,10 @@ const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'choose-profile', component: CreateProfileComponent, canActivate: [AuthGuard]},
   { path: 'candidate-profile',component: CandidateProfileComponent, canActivate: [AuthGuard] },
-  { path: 'candidates',component: CandidateListComponent, canActivate: [AuthGuard] },
+  { path: 'candidates/:type',component: CandidateListComponent, canActivate: [AuthGuard] },
   { path: 'candidate',component: CandidateListingComponent, canActivate: [AuthGuard] },
   { path: 'employer-profile', component: EmployerProfileComponent, canActivate: [AuthGuard] },
-  { path: 'job-listing',component: JobListingComponent, canActivate: [AuthGuard] },
+  { path: 'job-list/:type',component: JobListComponent, canActivate: [AuthGuard] },
 
   { path: 'unauthenticated', redirectTo: '/login', pathMatch: 'full' },
 ];
