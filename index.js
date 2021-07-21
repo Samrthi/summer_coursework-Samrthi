@@ -1,18 +1,14 @@
 const express = require('express')
 const path = require('path')
 const mongoose = require('mongoose')
-const fs = require('fs');
 const cookieParser = require('cookie-parser')
-
 const app = express()
 const API = require('./server/routes/API.routes')
 
-const credentials = fs.readFileSync('X509-cert-6199649518536865681.pem');
-
 mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority',
     {
-        sslKey: credentials,
-        sslCert: credentials,
+        sslKey: process.env.mongoCredentials,
+        sslCert: process.env.mongoCredentials,
         authMechanism: 'MONGODB-X509',
         authSource: '$external'
     },
@@ -38,6 +34,7 @@ mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSourc
             console.log(req.url)
             res.sendFile(path.join(__dirname, 'dist/app/index.html'))
         })
+
 
         let port = process.env.PORT;
         if (port == null || port == "") {
