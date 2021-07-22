@@ -15,7 +15,7 @@ export class StorageService {
   // GET
   getCandidate(candidateId: string): Observable<Candidate> {
     return this.http.get<Candidate>('/api/candidate/' + candidateId)
-        .pipe(map(candidate => formatSkillsForFrontend(candidate)))
+        .pipe(map(candidate => formatForFrontend(candidate)))
   }
 
   getEmployer(employerId: string): Observable<Employer> {
@@ -32,32 +32,32 @@ export class StorageService {
 
   getSearchableCandidates(): Observable<Candidate[]> {
     return this.http.get<Candidate[]>('/api/searchable_candidates/')
-        .pipe(map(candidates => candidates.map(candidate => formatSkillsForFrontend(candidate))))
+        .pipe(map(candidates => candidates.map(candidate => formatForFrontend(candidate))))
   }
 
   getShortlistCandidates(jobId: string): Observable<Candidate[]> {
     return this.http.get<Candidate[]>('/api/shortlist/' + jobId)
-        .pipe(map(candidates => candidates.map(candidate => formatSkillsForFrontend(candidate))))
+        .pipe(map(candidates => candidates.map(candidate => formatForFrontend(candidate))))
   }
 
   getInterestedJobs (): Observable<Job[]> {
     return this.http.get<Job[]>('/api/interested_jobs/')
-        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
+        .pipe(map(job => job.map(job => formatForFrontend(job))))
   }
 
   getShortlistedJobs (): Observable<Job[]> {
     return this.http.get<Job[]>('/api/shortlisted_jobs/')
-        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
+        .pipe(map(job => job.map(job => formatForFrontend(job))))
   }
 
   getEmployerJobs(): Observable<Job[]> {
     return this.http.get<Job[]>('/api/employer_jobs')
-        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
+        .pipe(map(job => job.map(job => formatForFrontend(job))))
   }
 
   getJobList (): Observable<Job[]> {
     return this.http.get<Job[]>('/api/job-list/')
-        .pipe(map(job => job.map(job => formatSkillsForFrontend(job))))
+        .pipe(map(job => job.map(job => formatForFrontend(job))))
   }
 
   getSkillList (): Observable<Skill[]> {
@@ -69,7 +69,7 @@ export class StorageService {
       const options = {
         headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
       };
-      return this.http.post('/api/candidate', formatSkillsForBackend(candidate), options)
+      return this.http.post('/api/candidate', formatForBackend(candidate), options)
   }
 
   addEmployer(employer: Employer): Observable<unknown> {
@@ -83,15 +83,29 @@ export class StorageService {
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    this.http.post('/api/job', formatSkillsForBackend(job), options).subscribe()
+    this.http.post('/api/job', formatForBackend(job), options).subscribe()
   }
 
   // PUT
+  registerInterest(job_id: string) {
+    const options = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    };
+    this.http.put('/api/register-interest', {id: job_id}, options).subscribe()
+  }
+
+  withdrawInterest(job_id: string) {
+    const options = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    };
+    this.http.put('/api/withdraw-interest', {id: job_id}, options).subscribe()
+  }
+
   updateCandidate(update) {
     const options = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
-    this.http.put('/api/candidate', formatSkillsForBackend(update), options).subscribe()
+    this.http.put('/api/candidate', formatForBackend(update), options).subscribe()
   }
 
   updateEmployer(update){
@@ -107,7 +121,7 @@ export class StorageService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     };
     console.log(job)
-    this.http.put('/api/job/' + id, formatSkillsForBackend(job), options).subscribe()
+    this.http.put('/api/job/' + id, formatForBackend(job), options).subscribe()
   }
 
   // DELETE
@@ -116,6 +130,7 @@ export class StorageService {
   }
 
   deleteEmployer() {
+    //TODO delete all associated jobs
     this.http.delete('/api/employer').subscribe()
   }
 
@@ -125,13 +140,25 @@ export class StorageService {
 }
 
 // Helpers
-function formatSkillsForBackend(instance) {
-  instance.skills = instance.skills
-      .map(id => JSON.parse('{"id": "' + mongoose.Types.ObjectId(id) + '"}'))
+function formatForBackend(instance) {
+  if (instance.skills){
+    instance.skills = instance.skills
+        .map(id => JSON.parse('{"id": "' + mongoose.Types.ObjectId(id) + '"}'))
+  }
+  if (instance.interested_jobs){
+    instance.interested_jobs = instance.interested_jobs
+        .map(id => JSON.parse('{"id": "' + mongoose.Types.ObjectId(id) + '"}'))
+  }
   return instance
 }
 
-function formatSkillsForFrontend(instance) {
-  instance.skills = instance.skills.map(id => id["id"])
+function formatForFrontend(instance) {
+  if (instance.skills) {
+    instance.skills = instance.skills.map(id => id["id"])
+  }
+  if (instance.interested_jobs) {
+    console.log()
+    instance.interested_jobs = instance.interested_jobs.map(id => id["id"])
+  }
   return instance
 }
