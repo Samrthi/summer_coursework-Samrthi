@@ -13,8 +13,19 @@ function http_error(res, code, message){
     res.status(code).send(message.toString())
 }
 
+// very basic authorisation
+function authorise(req, res, required_profile_type){
+    const error_message = "You are not authorised to access this resource"
+    let user = jwt.decode(req.cookies['t'])
+    if(!user) return http_error(res, 403, error_message)
+    if (required_profile_type === "") return "authorised"
+    if (user.profile_type === required_profile_type) return "authorised"
+    return http_error(res, 403, error_message)
+}
+
 // AUTH ROUTES
 router.post('/add-user', jsonParser, function (req, res){
+
     const user_instance = new User.UserModel(req.body)
     // TODO more explicit handling of email already being registered
     user_instance.save(function (err) {
@@ -102,7 +113,7 @@ router.post('/login', jsonParser, function (req, res){
 
         if (user.profile) {
             token_payload.profile_id = user.profile.id
-            token_payload.profile_type = user.profile.type
+            token_payload.profile_type = user.profile.profile_type
         }
 
         // create a token
@@ -133,242 +144,278 @@ router.post('/login', jsonParser, function (req, res){
 
 // GET METHODS
 router.get('/candidate/:candidate_id', function (req, res) {
-    let candidate_id = req.params['candidate_id']
-    if (candidate_id === "current") {
-        candidate_id = jwt.decode(req.cookies['t']).profile_id
+    if (authorise(req, res, "") === "authorised") {
+        let candidate_id = req.params['candidate_id']
+        if (candidate_id === "current") {
+            candidate_id = jwt.decode(req.cookies['t']).profile_id
+        }
+        Database.CandidateModel.findById(candidate_id, function (err, candidate) {
+            if (err) return http_error(res, 500, err.message);
+            if (!candidate) return http_error(res, 404, "No candidate with this id exists")
+            res.json(candidate)
+        })
     }
-    Database.CandidateModel.findById(candidate_id, function (err, candidate){
-        if (err) return http_error(res, 500, err.message);
-        if (!candidate) return http_error(res, 404, "No candidate with this id exists")
-        res.json(candidate)
-    })
 })
 
 router.get('/employer/:employer_id', function (req, res) {
-    let employer_id = req.params['employer_id']
-    if (employer_id === "current") {
-        employer_id = jwt.decode(req.cookies['t']).profile_id
+    if (authorise(req, res, "") === "authorised") {
+        let employer_id = req.params['employer_id']
+        if (employer_id === "current") {
+            employer_id = jwt.decode(req.cookies['t']).profile_id
+        }
+        Database.EmployerModel.findById(employer_id, function (err, employer) {
+            if (err) return http_error(res, 500, err.message);
+            if (!employer) return http_error(res, 404, "No employer with this id exists")
+            res.json(employer)
+        })
     }
-    Database.EmployerModel.findById(employer_id, function (err, employer){
-        if (err) return http_error(res, 500, err.message);
-        if (!employer) return http_error(res, 404, "No employer with this id exists")
-        res.json(employer)
-    })
 })
 
 router.get('/job/:job_id', function (req, res) {
-    const job_id = req.params['job_id']
-    Database.JobModel.findById(job_id, function (err, job){
-        if (err) return http_error(res, 500, err.message);
-        res.json(job)
-    })
+    if (authorise(req, res, "") === "authorised") {
+        const job_id = req.params['job_id']
+        Database.JobModel.findById(job_id, function (err, job) {
+            if (err) return http_error(res, 500, err.message);
+            res.json(job)
+        })
+    }
 })
 
 router.get('/skill/:skill_id', function (req, res) {
-    const skill_id = req.params['skill_id']
-    Database.SkillModel.findById(skill_id, function (err, skill){
-        if (err) return http_error(res, 500, err.message);
-        res.json(skill)
-    })
+    if (authorise(req, res, "") === "authorised") {
+        const skill_id = req.params['skill_id']
+        Database.SkillModel.findById(skill_id, function (err, skill) {
+            if (err) return http_error(res, 500, err.message);
+            res.json(skill)
+        })
+    }
 })
 
 router.get('/searchable_candidates', function (req, res) {
-    Database.CandidateModel.find({searchable: true}, function (err, candidates) {
-        if (err) return http_error(res, 500, err.message);
-        res.json(candidates)
-    })
-})
-
-router.get('/shortlist/:job_id', function (req, res) {
-    const job_id = req.params['job_id']
-    Database.JobModel.findById(job_id, 'shortlist', function (err, job){
-        if (err) return http_error(res, 500, err.message);
-        if (!job) return http_error(res, 404, "No job with this id exists")
-
-        const shortlist = job.shortlist.map(x => x['id'])
-
-        Database.CandidateModel.find({_id: {"$in": shortlist}},function (err, candidates) {
+    if (authorise(req, res, "employer") === "authorised") {
+        Database.CandidateModel.find({searchable: true}, function (err, candidates) {
             if (err) return http_error(res, 500, err.message);
             res.json(candidates)
         })
-    })
+    }
+})
+
+router.get('/shortlist/:job_id', function (req, res) {
+    if (authorise(req, res, "employer") === "authorised") {
+        const job_id = req.params['job_id']
+        Database.JobModel.findById(job_id, 'shortlist', function (err, job) {
+            if (err) return http_error(res, 500, err.message);
+            if (!job) return http_error(res, 404, "No job with this id exists")
+
+            const shortlist = job.shortlist.map(x => x['id'])
+
+            Database.CandidateModel.find({_id: {"$in": shortlist}}, function (err, candidates) {
+                if (err) return http_error(res, 500, err.message);
+                res.json(candidates)
+            })
+        })
+    }
 })
 
 router.get('/interested_jobs', function (req, res) {
-    const candidate_id = jwt.decode(req.cookies['t']).profile_id
-    Database.CandidateModel.findById(candidate_id, 'interested_jobs', function (err, candidate){
-        if (err) return http_error(res, 500, err.message);
-        if (!candidate) return http_error(res, 404, "No candidate with this id exists")
-
-        const job_list = candidate.interested_jobs.map(x => x['id'])
-
-        Database.JobModel.find({_id: {"$in": job_list}},function (err, jobs) {
+    if (authorise(req, res, "") === "authorised") {
+        const candidate_id = jwt.decode(req.cookies['t']).profile_id
+        Database.CandidateModel.findById(candidate_id, 'interested_jobs', function (err, candidate) {
             if (err) return http_error(res, 500, err.message);
-            res.json(jobs)
+            if (!candidate) return http_error(res, 404, "No candidate with this id exists")
+
+            const job_list = candidate.interested_jobs.map(x => x['id'])
+
+            Database.JobModel.find({_id: {"$in": job_list}}, function (err, jobs) {
+                if (err) return http_error(res, 500, err.message);
+                res.json(jobs)
+            })
         })
-    })
+    }
 })
 
 router.get('/shortlisted_jobs', function (req, res) {
-    const candidate_id = jwt.decode(req.cookies['t']).profile_id
-    Database.JobModel.find({"shortlist.id": candidate_id},function (err, jobs) {
-        if (err) return http_error(res, 500, err.message);
-        res.json(jobs)
-    })
-})
-
-router.get('/employer_jobs', function (req, res) {
-    employer_id = jwt.decode(req.cookies['t']).profile_id
-    Database.EmployerModel.findById(employer_id, function (err, employer){
-        if (err) return http_error(res, 500, err.message);
-        if (!employer) return http_error(res, 404, "No employer with this id exists")
-
-
-        ids = employer.jobs.map(x => x["_id"])
-        Database.JobModel.find({_id: {"$in": ids}}, function (err, jobs) {
+    if (authorise(req, res, "") === "authorised") {
+        const candidate_id = jwt.decode(req.cookies['t']).profile_id
+        Database.JobModel.find({"shortlist.id": candidate_id}, function (err, jobs) {
             if (err) return http_error(res, 500, err.message);
             res.json(jobs)
         })
-    })
+    }
+})
+
+router.get('/employer_jobs', function (req, res) {
+    if (authorise(req, res, "") === "authorised") {
+        employer_id = jwt.decode(req.cookies['t']).profile_id
+        Database.EmployerModel.findById(employer_id, function (err, employer) {
+            if (err) return http_error(res, 500, err.message);
+            if (!employer) return http_error(res, 404, "No employer with this id exists")
+
+
+            ids = employer.jobs.map(x => x["_id"])
+            Database.JobModel.find({_id: {"$in": ids}}, function (err, jobs) {
+                if (err) return http_error(res, 500, err.message);
+                res.json(jobs)
+            })
+        })
+    }
 })
 
 
 router.get('/job-list', function (req, res) {
-    Database.JobModel.find(function (err, jobs) {
-        if (err) return http_error(res, 500, err.message);
-        res.json(jobs)
-    })
+    if (authorise(req, res, "candidate") === "authorised") {
+        Database.JobModel.find(function (err, jobs) {
+            if (err) return http_error(res, 500, err.message);
+            res.json(jobs)
+        })
+    }
 })
 
 router.get('/skill-list', function (req, res) {
-    Database.SkillModel.find(function (err, skills) {
-        if (err) return http_error(res, 500, err.message);
-        res.json(skills)
-    })
+    if (authorise(req, res, "") === "authorised") {
+        Database.SkillModel.find(function (err, skills) {
+            if (err) return http_error(res, 500, err.message);
+            res.json(skills)
+        })
+    }
 })
 
 // POST METHODS
 router.post('/candidate', jsonParser, function (req, res) {
-
-    // test command
-    // curl -X POST -H "Content-Type: application/json" -d '{"name":"Sam"}' "http://localhost:3000/api/candidate"
-
-    const candidate_instance = new Database.CandidateModel(req.body);
-    candidate_instance.save(function (err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(201).json({
-            profile_id: candidate_instance.id
-        })
-    });
+    if (authorise(req, res, "") === "authorised") {
+        const candidate_instance = new Database.CandidateModel(req.body);
+        candidate_instance.save(function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(201).json({
+                profile_id: candidate_instance.id
+            })
+        });
+    }
 })
 
 router.post('/employer', jsonParser, function (req, res) {
-    const employer_instance = new Database.EmployerModel(req.body);
-    employer_instance.save(function (err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(201).json({
-            profile_id: employer_instance.id
-        })
-    });
+    if (authorise(req, res, "") === "authorised") {
+        const employer_instance = new Database.EmployerModel(req.body);
+        employer_instance.save(function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(201).json({
+                profile_id: employer_instance.id
+            })
+        });
+    }
 })
 
 router.post('/job', jsonParser, function (req, res) {
-    const employer_id = jwt.decode(req.cookies['t']).profile_id
-    const job_instance = new Database.JobModel(req.body);
-    job_instance.save(function (err) {
-        if (err) return http_error(res, 500, err.message);
-        Database.EmployerModel.findByIdAndUpdate(employer_id, {$push: {jobs: job_instance}}, function(err) {
+    if (authorise(req, res, "employer") === "authorised") {
+        const employer_id = jwt.decode(req.cookies['t']).profile_id
+        const job_instance = new Database.JobModel(req.body);
+        job_instance.save(function (err) {
             if (err) return http_error(res, 500, err.message);
-            res.status(201).send()
-        })
-
-    });
+            Database.EmployerModel.findByIdAndUpdate(employer_id, {$push: {jobs: job_instance}}, function (err) {
+                if (err) return http_error(res, 500, err.message);
+                res.status(201).send()
+            })
+        });
+    }
 })
 
 
 // PUT METHODS
 router.put('/candidate', jsonParser, function (req, res) {
-    const candidate_id = jwt.decode(req.cookies['t']).profile_id
-    Database.CandidateModel.findByIdAndUpdate(candidate_id, req.body, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
+    if (authorise(req, res, "") === "authorised") {
+        const candidate_id = jwt.decode(req.cookies['t']).profile_id
+        Database.CandidateModel.findByIdAndUpdate(candidate_id, req.body, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    }
 })
 
 router.put('/register-interest', jsonParser, function (req, res) {
-    const candidate_id = jwt.decode(req.cookies['t']).profile_id
-    const job_id = req.body.id
-    Database.CandidateModel.findByIdAndUpdate(candidate_id, {$push: {interested_jobs: {id: job_id}}}, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
+    if (authorise(req, res, "candidate") === "authorised") {
+        const candidate_id = jwt.decode(req.cookies['t']).profile_id
+        const job_id = req.body.id
+        Database.CandidateModel.findByIdAndUpdate(candidate_id, {$push: {interested_jobs: {id: job_id}}}, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    }
 })
 
 router.put('/withdraw-interest', jsonParser, function (req, res) {
-    const candidate_id = jwt.decode(req.cookies['t']).profile_id
-    const job_id = req.body.id
-    Database.CandidateModel.findByIdAndUpdate(candidate_id, {$pull: {interested_jobs: {id: job_id}}}, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
+    if (authorise(req, res, "candidate") === "authorised") {
+        const candidate_id = jwt.decode(req.cookies['t']).profile_id
+        const job_id = req.body.id
+        Database.CandidateModel.findByIdAndUpdate(candidate_id, {$pull: {interested_jobs: {id: job_id}}}, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    }
 })
 
 router.put('/employer', jsonParser, function (req, res) {
-    const employer_id = jwt.decode(req.cookies['t']).profile_id
-    Database.EmployerModel.findByIdAndUpdate(employer_id, req.body, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
+    if (authorise(req, res, "employer") === "authorised") {
+        const employer_id = jwt.decode(req.cookies['t']).profile_id
+        Database.EmployerModel.findByIdAndUpdate(employer_id, req.body, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    }
 })
 
 
 router.put('/job/:id', jsonParser, function (req, res) {
-    const job_id = req.params["id"]
-    Database.JobModel.findByIdAndUpdate(job_id, req.body, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
+    if (authorise(req, res, "employer") === "authorised") {
+        const job_id = req.params["id"]
+        Database.JobModel.findByIdAndUpdate(job_id, req.body, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    }
 })
 
 
 // DELETE METHODS
 
 router.delete('/delete-user', function (req, res) {
-    let id = jwt.decode(req.cookies['t']).user_id
-    User.UserModel.findByIdAndDelete(id, function(err) {
-        if (err) return http_error(res, 500, err.message);
-        res.clearCookie('t')
-        res.status(200).send()
-    })
+    if (authorise(req, res, "") === "authorised") {
+        let id = jwt.decode(req.cookies['t']).user_id
+        User.UserModel.findByIdAndDelete(id, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.clearCookie('t')
+            res.status(200).send()
+        })
+    }
 })
 
 router.delete('/:type/', function (req, res) {
-    if (req.params["type"] === "employer") {
-        const employer_id = jwt.decode(req.cookies['t']).profile_id
-        Database.EmployerModel.findByIdAndDelete(employer_id, function (err) {
+    if (authorise(req, res, "") === "authorised") {
+        if (req.params["type"] === "employer") {
+            const employer_id = jwt.decode(req.cookies['t']).profile_id
+            Database.EmployerModel.findByIdAndDelete(employer_id, function (err) {
+                if (err) return http_error(res, 500, err.message);
+                res.status(200).send()
+            })
+        } else {
+            const candidate_id = jwt.decode(req.cookies['t']).profile_id
+            Database.CandidateModel.findByIdAndDelete(candidate_id, function (err) {
+                if (err) return http_error(res, 500, err.message);
+                res.status(200).send()
+            })
+        }
+
+        const user_id = jwt.decode(req.cookies['t']).user_id
+        let name = jwt.decode(req.cookies['t']).name
+        User.UserModel.findByIdAndUpdate(user_id, {$unset: {profile: ""}}, function (err) {
             if (err) return http_error(res, 500, err.message);
             res.status(200).send()
         })
-    } else {
-        const candidate_id = jwt.decode(req.cookies['t']).profile_id
-        Database.CandidateModel.findByIdAndDelete(candidate_id, function (err) {
-            if (err) return http_error(res, 500, err.message);
-            res.status(200).send()
-        })
-    }
-
-    const user_id = jwt.decode(req.cookies['t']).user_id
-    let name = jwt.decode(req.cookies['t']).name
-    User.UserModel.findByIdAndUpdate(user_id, {$unset: {profile: ""}}, function (err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
 
 
-    let token_payload = {
-        user_id: user_id,
-        name: name,
-    }
+        let token_payload = {
+            user_id: user_id,
+            name: name,
+        }
 
     // create a token
     const token = jwt.sign(
@@ -378,20 +425,23 @@ router.delete('/:type/', function (req, res) {
             expiresIn: "1800s" // 30 minutes
         });
 
-    res.clearCookie('t')
-    res.cookie('t', token, {
-        sameSite: "strict",
-        secure: true,
-        httpOnly: true,
-    })
+        res.clearCookie('t')
+        res.cookie('t', token, {
+            sameSite: "strict",
+            secure: true,
+            httpOnly: true,
+        })
+    }
 })
 
 router.delete('/job/:job_id', function (req, res) {
-    const job_id = req.params['job_id']
-    Database.JobModel.findByIdAndDelete(job_id, function (err) {
-        if (err) return http_error(res, 500, err.message);
-        res.status(200).send()
-    })
+    if (authorise(req, res, "employer") === "authorised") {
+        const job_id = req.params['job_id']
+        Database.JobModel.findByIdAndDelete(job_id, function (err) {
+            if (err) return http_error(res, 500, err.message);
+            res.status(200).send()
+        })
+    }
 })
 
 module.exports = router
