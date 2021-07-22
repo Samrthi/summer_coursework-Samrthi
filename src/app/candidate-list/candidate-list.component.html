@@ -17,9 +17,9 @@
     </mat-card-header>
 
     <mat-nav-list>
-        <li *ngFor="let candidate of candidates">
-            {{ candidate.name }}
-        </li>
+        <div *ngFor="let candidate of candidates">
+            <app-candidate-listing [candidate]="candidate"></app-candidate-listing>
+        </div>
     </mat-nav-list>
 
 </mat-card>
