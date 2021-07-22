@@ -1,8 +1,20 @@
 <mat-card class="box">
-    <mat-card-content>
+    <mat-card-title>
         {{candidate.name}}
-        {{candidate.statement}}
-        {{candidate.skills}}
-    </mat-card-content>
+    </mat-card-title>
+    <mat-card-content>
+        <div id="statement">
+            <h4>Statement</h4>
+            <p>
+                {{candidate.statement}}
+            </p>
+        </div>
 
+        <div id="skills">
+            <h4>Skills</h4>
+            <mat-chip-list [selectable]="false">
+                <mat-chip *ngFor="let skill of candidate.skills">{{skill}}</mat-chip>
+            </mat-chip-list>
+        </div>
+    </mat-card-content>
 </mat-card>
