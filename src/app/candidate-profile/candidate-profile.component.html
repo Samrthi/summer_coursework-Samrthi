@@ -3,19 +3,30 @@
         <mat-card-header>
             <mat-card-title>Hello {{candidate.name}}!</mat-card-title>
         </mat-card-header>
+
         <mat-card-content>
-            Statement: {{candidate.statement}}
-            Skills
-            <ul>
-                <li *ngFor="let skill of candidate.skills">{{skillDict[skill]}}</li>
-            </ul>
-            Searchable: {{candidate.searchable}}
-
+            <div id="statement">
+                <h3>Your Statement</h3>
+                <p> "{{candidate.statement}}" </p>
+                <p *ngIf="!candidate.statement">Your profile currently doesn't have a statement.</p>
+            </div>
+            <div id="skills">
+                <h3>Your Skills</h3>
+                <mat-chip-list [focusable]="false" [selectable]="false">
+                    <mat-chip matLine *ngFor="let skill of candidate.skills">{{skillDict[skill]}}</mat-chip>
+                </mat-chip-list>
+                <p matLine *ngIf="!candidate.skills || candidate.skills.length == 0">You're profile currently has no skills.</p>
+            </div>
+            <div id="searchable">
+                <p> Your profile can be found by employers: <b>{{searchable}}</b> </p>
+            </div>
         </mat-card-content>
-        <button mat-button (click)="editProfile()" color="primary">Edit Profile</button>
-
-        <button mat-button (click)="viewJobs()" color="primary">View all jobs</button>
-        <button mat-button (click)="viewInterestedJobs()" color="primary">View interested jobs</button>
+        <mat-divider></mat-divider>
+        <mat-card-actions>
+            <button id="edit" mat-flat-button color="primary" (click)="editProfile()" color="accent">Edit Profile</button>
+            <button class="action" mat-flat-button color="primary" (click)="viewJobs()" color="primary">View all jobs</button>
+            <button class="action" mat-flat-button color="primary" (click)="viewInterestedJobs()" color="primary">View interested jobs</button>
+        </mat-card-actions>
     </mat-card>
 </div>
 

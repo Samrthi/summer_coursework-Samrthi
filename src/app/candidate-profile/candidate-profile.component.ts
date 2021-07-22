@@ -14,6 +14,7 @@ import {Router} from "@angular/router";
 export class CandidateProfileComponent implements OnInit {
   candidate: Candidate;
   skillDict = {};
+  searchable: string;
 
   constructor(
       private storage: StorageService,
@@ -25,6 +26,11 @@ export class CandidateProfileComponent implements OnInit {
     this.candidate = undefined
     this.storage.getCandidate("current").subscribe(res => {
         this.candidate = new Candidate(res.name, res.statement, res.skills, res.searchable)
+      if(this.candidate.searchable){
+        this.searchable = "Yes"
+      } else {
+        this.searchable = "No"
+      }
     })
     this.storage.getSkillList().subscribe(skills => {
       skills.forEach(skill => {

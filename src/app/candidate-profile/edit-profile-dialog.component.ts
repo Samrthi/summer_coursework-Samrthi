@@ -7,15 +7,15 @@ import {Candidate} from "../candidate";
 @Component({
     selector: 'edit-profile-dialog',
     templateUrl: 'edit-profile-dialog.html',
+    styleUrls: ['./candidate-profile.component.scss']
 })
 export class EditProfileDialogComponent implements OnInit {
     profileNameControl: FormControl;
     statementControl: FormControl;
+    searchableControl: FormControl;
     skills: string[] = [];
     userSkills: string[];
-    selected = ""
     skillDict = {};
-    searchable: boolean;
     allowDelete: boolean = true;
     showDeleteConfirm: boolean = false;
 
@@ -26,9 +26,10 @@ export class EditProfileDialogComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.searchable = this.data.searchable
         this.profileNameControl = new FormControl(this.data.name);
         this.statementControl = new FormControl(this.data.statement);
+        console.log(this.data.searchable)
+        this.searchableControl = new FormControl(this.data.searchable)
         this.userSkills = [...this.data.skills]
         this.storage.getSkillList().subscribe(skills => {
             skills.forEach(skill => {
@@ -46,7 +47,6 @@ export class EditProfileDialogComponent implements OnInit {
         if (index > -1) {
             this.skills.splice(index, 1);
         }
-        this.selected = ""
     }
 
     removeSkill(skill_id: string): void {
@@ -55,7 +55,6 @@ export class EditProfileDialogComponent implements OnInit {
         if (index > -1) {
             this.userSkills.splice(index, 1);
         }
-        this.selected = ""
     }
 
 
@@ -64,7 +63,7 @@ export class EditProfileDialogComponent implements OnInit {
             this.profileNameControl.value,
             this.statementControl.value,
             this.userSkills,
-            this.searchable,
+            this.searchableControl.value,
         )
         this.storage.updateCandidate(candidate)
         this.dialogRef.close();
