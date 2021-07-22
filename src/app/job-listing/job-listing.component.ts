@@ -24,7 +24,10 @@ export class JobListingComponent implements OnInit {
   }
 
   editJob() {
-    this.dialog.open(EditJobDialogComponent, {data: this.job}).afterClosed().subscribe(res => {
+    this.dialog.open(EditJobDialogComponent, {
+      data: this.job,
+      width: '600px'
+    }).afterClosed().subscribe(res => {
       window.location.reload()
     })
   }

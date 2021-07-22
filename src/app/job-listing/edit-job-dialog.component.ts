@@ -7,6 +7,7 @@ import {Job} from "../job";
 @Component({
     selector: 'edit-job-dialog',
     templateUrl: 'edit-job-dialog.html',
+    styleUrls: ['./job-listing.component.scss']
 })
 export class EditJobDialogComponent implements OnInit {
     nameControl: FormControl;

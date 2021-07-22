@@ -1,19 +1,26 @@
-
 <mat-card class="box">
-    <mat-card-content>
-    {{job.name}}
-    {{job.description}}
-    {{job.skills}}
-    </mat-card-content>
+        <mat-card-title>
+            {{job.name}}
+        </mat-card-title>
+        <mat-card-content>
+            <div id="description">
+                <h4>Job Description</h4>
+                <p>
+                    {{job.description}}
+                </p>
+            </div>
+
+            <div id="skills">
+                <h4>Skills Required</h4>
+                <mat-chip-list [selectable]="false">
+                    <mat-chip *ngFor="let skill of job.skills">{{skill}}</mat-chip>
+                </mat-chip-list>
+            </div>
+        </mat-card-content>
+
     <mat-card-actions>
-        <button *ngIf="employer" (click)="editJob()">Edit</button>
-        <button *ngIf="!employer && !is_interested" (click)="registerInterest()">Register interest</button>
-        <button *ngIf="!employer && is_interested" (click)="withdrawInterest()">Withdraw interest</button>
+        <button class="action" mat-flat-button color="primary" *ngIf="employer" (click)="editJob()">Edit</button>
+        <button class="action" mat-flat-button color="accent" *ngIf="!employer && !is_interested" (click)="registerInterest()">Register interest</button>
+        <button class="action" mat-flat-button color="warn" *ngIf="!employer && is_interested" (click)="withdrawInterest()">Withdraw interest</button>
     </mat-card-actions>
 </mat-card>
-
-<!--if candidate -> show interested button -->
-
-<!--if employer -> show edit button-->
-<!--view shortlist-->
-<!--view interested candidates-->

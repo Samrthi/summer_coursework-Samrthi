@@ -1,0 +1,46 @@
+
+.mat-card-actions, h2 {
+  text-align: center;
+}
+
+.mat-dialog-actions {
+  float: right;
+}
+
+.mat-card-header {
+  justify-content: center;
+}
+
+
+.mat-button-toggle {
+  width: 100px;
+}
+
+#edit {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+
+.action {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+.mat-form-field {
+  display: block;
+}
+
+
+.mat-card {
+  margin: 1rem;
+}
+
+#name, #description {
+  margin-bottom: 2rem;
+}
+
+#chip-list {
+  max-width: 90%;
+  margin-bottom: 1rem;
+}

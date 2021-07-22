@@ -12,6 +12,7 @@ import {StorageService} from "../storage.service";
 export class JobListComponent implements OnInit {
   jobs: Job[] = undefined
   skillDict = {};
+  title: string;
   employer = false
   interestedJobs
 
@@ -29,28 +30,35 @@ export class JobListComponent implements OnInit {
 
     const type = this.route.snapshot.paramMap.get('type')
 
-    this.storage.getCandidate("current").subscribe(res => {
-      this.interestedJobs = res.interested_jobs
 
-      if (type === "employer") {
-        this.employer = true
-        this.storage.getEmployerJobs().subscribe(res => {
-          this.jobs = this.convertSkillIdtoName(res)
-        })
-      } else if (type === "interested") {
-        this.storage.getInterestedJobs().subscribe(res => {
-          this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
-        })
-      } else if (type === "shortlisted") {
-        this.storage.getShortlistedJobs().subscribe(res => {
-          this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
-        })
-      } else if (type === "all") {
-        this.storage.getJobList().subscribe(res => {
-          this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
-        })
-      }
-    })
+    if (type === "employer") {
+      this.title = "My Jobs"
+      this.employer = true
+      this.storage.getEmployerJobs().subscribe(res => {
+        this.jobs = this.convertSkillIdtoName(res)
+      })
+    } else {
+      this.storage.getCandidate("current").subscribe(res => {
+        this.interestedJobs = res.interested_jobs
+
+      if (type === "interested") {
+        this.title = "Jobs I have expressed interest in"
+          this.storage.getInterestedJobs().subscribe(res => {
+            this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
+          })
+        } else if (type === "shortlisted") {
+        this.title = "Jobs I have been shortlisted for"
+          this.storage.getShortlistedJobs().subscribe(res => {
+            this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
+          })
+        } else if (type === "all") {
+        this.title = "All available Jobs"
+          this.storage.getJobList().subscribe(res => {
+            this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
+          })
+        }
+      })
+    }
   }
 
   addInterestedAttr(jobs: Job[]) {

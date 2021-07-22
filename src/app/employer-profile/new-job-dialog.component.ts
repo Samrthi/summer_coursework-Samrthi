@@ -7,6 +7,7 @@ import {Job} from "../job";
 @Component({
     selector: 'new-job-dialog',
     templateUrl: 'new-job-dialog.html',
+    styleUrls: ['./employer-profile.component.scss']
 })
 export class NewJobDialogComponent implements OnInit {
     nameControl: FormControl;
