@@ -14,6 +14,7 @@ export class AppComponent {
 
   constructor(
       public auth: AuthService,
+      public router: Router,
       private notificationService: NotificationService,
       private snackBar: MatSnackBar,
       private dialog: MatDialog
@@ -29,14 +30,19 @@ export class AppComponent {
     // });
   }
 
-  signOut(): void {
+  logOut(): void {
     this.auth.logout()
+  }
+
+  signUp(){
+    this.router.navigate(['signup'])
   }
 }
 
 
 import { Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-modal',

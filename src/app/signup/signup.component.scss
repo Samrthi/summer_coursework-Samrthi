@@ -5,7 +5,7 @@
   margin: auto;
 }
 
-#signup-card {
+.mat-card {
   max-width: 400px;
   margin: 10% auto auto;
 }
@@ -23,3 +23,9 @@
 #actions {
   text-align: center;
 }
+
+.mat-card-header {
+  justify-content: center;
+  padding: 1rem;
+}
+

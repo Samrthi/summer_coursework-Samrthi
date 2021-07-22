@@ -1,14 +1,11 @@
-
-<!--profile/avatar button-->
-
-
 <div ng-app="app" ng-controller="AuthController">
     <mat-sidenav-container class="sidenav-container">
         <mat-sidenav-content>
             <mat-toolbar id="toolbar" color="primary">
                 <h1 class="mat-h1"><a>{{title}}</a></h1>
                 <div class="flex-spacer"></div>
-                <button id="logout-button" mat-raised-button *ngIf="auth.loggedIn" (click)="signOut()">Logout</button>
+                <button id="logout-button" mat-raised-button (click)="logOut()">Logout</button>
+                <button id="signup-button" mat-raised-button (click)="signUp()">Signup</button>
             </mat-toolbar>
         </mat-sidenav-content>
     </mat-sidenav-container>
