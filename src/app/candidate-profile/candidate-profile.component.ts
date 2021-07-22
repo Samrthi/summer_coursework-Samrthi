@@ -44,7 +44,10 @@ export class CandidateProfileComponent implements OnInit {
   }
 
   editProfile() {
-    this.dialog.open(EditProfileDialogComponent, {data: this.candidate})
+    this.dialog.open(EditProfileDialogComponent, {
+      data: this.candidate,
+      width: '600px'
+    })
     this.dialog.afterAllClosed.subscribe(res => {
       window.location.reload()
     })

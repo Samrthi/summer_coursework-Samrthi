@@ -37,7 +37,7 @@ export class EmployerProfileComponent implements OnInit {
   }
 
   addJob() {
-    this.dialog.open(NewJobDialogComponent)
+    this.dialog.open(NewJobDialogComponent, {width: "600px"})
   }
 
   viewJobs() {
