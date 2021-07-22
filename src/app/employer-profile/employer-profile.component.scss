@@ -1,0 +1,51 @@
+
+.mat-card-actions, h2 {
+  text-align: center;
+}
+
+.mat-dialog-actions {
+  float: right;
+}
+
+.mat-card-header {
+  justify-content: center;
+}
+
+
+.mat-button-toggle {
+  width: 100px;
+}
+
+
+.action {
+  margin: 1rem;
+  width: 40%;
+}
+
+#statement, #skills, #name, #searchable {
+  margin-bottom: 3rem;
+}
+
+#add-skill, #edit-name{
+  max-width: 50%;
+}
+
+
+#statement-input {
+  width: 100%;
+}
+
+.mat-form-field {
+  display: block;
+}
+
+
+.mat-card {
+  max-width: 600px;
+  margin: 10% auto auto;
+}
+
+#chip-list {
+  max-width: 90%;
+  margin-bottom: 1rem;
+}
