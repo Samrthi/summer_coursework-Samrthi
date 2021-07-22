@@ -6,6 +6,6 @@ export class Candidate {
         public statement?: string,
         public skills?: string[],
         public searchable?: boolean,
-        public interested_jobs?: Job[],
+        public interested_jobs?: string[],
     ) {}
 }

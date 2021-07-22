@@ -12,18 +12,31 @@ import { EditJobDialogComponent } from './edit-job-dialog.component';
 export class JobListingComponent implements OnInit {
   @Input() job: Job;
   @Input() employer: boolean;
+  is_interested: boolean;
 
   constructor(
       private storage: StorageService,
       public dialog: MatDialog,
       ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.is_interested = this.job["interested"]
+  }
 
   editJob() {
     this.dialog.open(EditJobDialogComponent, {data: this.job}).afterClosed().subscribe(res => {
       window.location.reload()
     })
+  }
+
+  registerInterest() {
+    this.storage.registerInterest(this.job["_id"])
+    this.is_interested = true
+  }
+
+  withdrawInterest() {
+    this.storage.withdrawInterest(this.job["_id"])
+    this.is_interested = false
   }
 
 }

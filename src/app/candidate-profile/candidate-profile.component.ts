@@ -18,6 +18,7 @@ export class CandidateProfileComponent implements OnInit {
   constructor(
       private storage: StorageService,
       public dialog: MatDialog,
+      public router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,11 +45,11 @@ export class CandidateProfileComponent implements OnInit {
   }
 
   viewJobs() {
-    //TODO implement
+    this.router.navigate(['job-list', "all"])
   }
 
   viewInterestedJobs() {
-    //TODO implement
+    this.router.navigate(['job-list', "interested"])
   }
 }
 

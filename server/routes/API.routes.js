@@ -288,10 +288,26 @@ router.post('/job', jsonParser, function (req, res) {
 
 // PUT METHODS
 router.put('/candidate', jsonParser, function (req, res) {
-    // test command
-    // curl -X PUT -H "Content-Type: application/json" -d '{"name":"Samantha", "searchable":"false"}' "http://localhost:3000/api/candidate/60e7784d95bd90f005d60a99"
     const candidate_id = jwt.decode(req.cookies['t']).profile_id
     Database.CandidateModel.findByIdAndUpdate(candidate_id, req.body, function(err) {
+        if (err) return http_error(res, 500, err.message);
+        res.status(200).send()
+    })
+})
+
+router.put('/register-interest', jsonParser, function (req, res) {
+    const candidate_id = jwt.decode(req.cookies['t']).profile_id
+    const job_id = req.body.id
+    Database.CandidateModel.findByIdAndUpdate(candidate_id, {$push: {interested_jobs: {id: job_id}}}, function(err) {
+        if (err) return http_error(res, 500, err.message);
+        res.status(200).send()
+    })
+})
+
+router.put('/withdraw-interest', jsonParser, function (req, res) {
+    const candidate_id = jwt.decode(req.cookies['t']).profile_id
+    const job_id = req.body.id
+    Database.CandidateModel.findByIdAndUpdate(candidate_id, {$pull: {interested_jobs: {id: job_id}}}, function(err) {
         if (err) return http_error(res, 500, err.message);
         res.status(200).send()
     })

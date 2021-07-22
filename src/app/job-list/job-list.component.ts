@@ -13,6 +13,7 @@ export class JobListComponent implements OnInit {
   jobs: Job[] = undefined
   skillDict = {};
   employer = false
+  interestedJobs
 
   constructor(
       private storage: StorageService,
@@ -27,20 +28,36 @@ export class JobListComponent implements OnInit {
     })
 
     const type = this.route.snapshot.paramMap.get('type')
-    if (type === "employer") {
-      this.employer = true
-      this.storage.getEmployerJobs().subscribe(res => {
-        this.jobs = this.convertSkillIdtoName(res)
-      })
-    } else if (type === "interested") {
-      this.storage.getInterestedJobs().subscribe(res => {
-        this.jobs = this.convertSkillIdtoName(res)
-      })
-    } else if (type === "shortlisted") {
-      this.storage.getShortlistedJobs().subscribe(res => {
-        this.jobs = this.convertSkillIdtoName(res)
-      })
-    }
+
+    this.storage.getCandidate("current").subscribe(res => {
+      this.interestedJobs = res.interested_jobs
+
+      if (type === "employer") {
+        this.employer = true
+        this.storage.getEmployerJobs().subscribe(res => {
+          this.jobs = this.convertSkillIdtoName(res)
+        })
+      } else if (type === "interested") {
+        this.storage.getInterestedJobs().subscribe(res => {
+          this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
+        })
+      } else if (type === "shortlisted") {
+        this.storage.getShortlistedJobs().subscribe(res => {
+          this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
+        })
+      } else if (type === "all") {
+        this.storage.getJobList().subscribe(res => {
+          this.jobs = this.addInterestedAttr(this.convertSkillIdtoName(res))
+        })
+      }
+    })
+  }
+
+  addInterestedAttr(jobs: Job[]) {
+    return jobs.map(job => {
+      job["interested"] = this.interestedJobs.includes(job["_id"])
+      return job
+    })
   }
 
   convertSkillIdtoName(jobs: Job[]) {
@@ -49,7 +66,6 @@ export class JobListComponent implements OnInit {
       return job
     })
   }
-
 
   isLoaded(): boolean {
     return this.jobs !== undefined
