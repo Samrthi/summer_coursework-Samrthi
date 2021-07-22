@@ -157,7 +157,6 @@ function formatForFrontend(instance) {
     instance.skills = instance.skills.map(id => id["id"])
   }
   if (instance.interested_jobs) {
-    console.log()
     instance.interested_jobs = instance.interested_jobs.map(id => id["id"])
   }
   return instance

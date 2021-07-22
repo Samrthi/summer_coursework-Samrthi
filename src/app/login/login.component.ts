@@ -17,8 +17,7 @@ export class LoginComponent {
       Validators.required
     ]),
     password: new FormControl(null, [
-      Validators.required,
-      Validators.minLength(8)
+      Validators.required
     ])
   });
 
@@ -30,7 +29,7 @@ export class LoginComponent {
 
   get email(): string | null {
     if (this.loginForm.get('email')) {
-      return this.loginForm.get('email')?.value
+      return this.loginForm.get('email')?.value.toLowerCase()
     }
     return null
   }
