@@ -6,16 +6,10 @@ const app = express()
 const API = require('./server/routes/API.routes')
 const fs = require('fs')
 
-
-// TODO REMOVE
-const credentials = fs.readFileSync('X509-cert-6199649518536865681.pem');
-
 mongoose.connect('mongodb+srv://cluster0.7koai.mongodb.net/robertslist?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority',
     {
-        // sslKey: process.env.mongoCredentials,
-        // sslCert: process.env.mongoCredentials,
-        sslKey: credentials,
-        sslCert: credentials,
+        sslKey: process.env.mongoCredentials,
+        sslCert: process.env.mongoCredentials,
         authMechanism: 'MONGODB-X509',
         authSource: '$external'
     },
