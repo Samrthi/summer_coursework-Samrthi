@@ -21,7 +21,7 @@
 
                 <mat-form-field class="input" appearance="fill">
                     <mat-label>Password</mat-label>
-                    <input type="password" #input [errorStateMatcher]="matcher" [formControl]="passwordFormControl" matInput>
+                    <input type="password" [formControl]="passwordFormControl" matInput>
                     <mat-error *ngIf="passwordFormControl.errors?.minlength">Min 10 characters:  {{input.value?.length || 0}}/10</mat-error>
                     <mat-error *ngIf="passwordFormControl.errors?.pattern">Password needs to contain at least 1 lowercase letter, 1 uppercase letter and 1 number.</mat-error>
                 </mat-form-field>

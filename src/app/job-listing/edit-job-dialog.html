@@ -46,7 +46,7 @@
         <mat-dialog-actions>
             <button mat-raised-button (click)="onOK()" color="primary">Save</button>
             <button mat-button (click)="onCancel()" color="warn">Cancel</button>
-            <button *ngIf="allowDelete" mat-button (click)="delete()" color="warn">Delete profile</button>
+            <button *ngIf="allowDelete" mat-button (click)="delete()" color="warn">Delete job</button>
             <button *ngIf="showDeleteConfirm" mat-raised-button (click)="cancelDelete()">Cancel Delete</button>
             <button *ngIf="showDeleteConfirm" mat-raised-button (click)="confirmDelete()" color="warn">Confirm Delete</button>
         </mat-dialog-actions>

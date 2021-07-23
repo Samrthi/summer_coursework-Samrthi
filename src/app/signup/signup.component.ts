@@ -25,8 +25,6 @@ export class SignupComponent{
     Validators.pattern(/[A-Z]/)
   ])
 
-  matcher = new MyErrorStateMatcher();
-
   constructor(
       private auth: AuthService,
       private router: Router,
@@ -50,12 +48,5 @@ export class SignupComponent{
         this.router.navigate(['/login'])
       })
     }
-  }
-}
-
-export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    const isSubmitted = form && form.submitted;
-    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
   }
 }
